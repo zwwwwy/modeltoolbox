@@ -260,7 +260,8 @@ def plot_gpu(eng, *args):
         add_workspace(eng, x, y, z)
         eng.plot3(x, y, z)
     if length == 2:
-        x, y = to_matlab_gpu(eng, *args)#这里的args需要解包，为啥to_matlab不需要解包，to_matlab_gpu就得解包？？？？？
+        x, y = to_matlab_gpu(
+            eng, *args)  #这里的args需要解包，为啥to_matlab不需要解包，to_matlab_gpu就得解包？？？？？
         # args是元组，长度为2，eng是引擎类型，也没问题，为什么要解包？？？？？先解一个再说把
         add_workspace(eng, x, y)
         eng.plot(x, y)
@@ -268,8 +269,6 @@ def plot_gpu(eng, *args):
     eng.grid("on", nargout=0)
     eng.title("pic")
     eng.xlabel("x")
-
-
 
 
 def mesh_gpu(
