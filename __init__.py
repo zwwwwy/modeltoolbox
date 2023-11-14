@@ -43,6 +43,17 @@ def to_matlab(*args) -> Union[matlab.double, tuple[matlab.double, ...]]:
         return lst[0]
     return tuple(lst)
 
+def to_matlab_gpu(eng, *args):
+    """
+    把一串数组转换为MATLAb的gpuArray
+    """
+    lst = []
+    for i in args:
+        lst.append(eng.gpuArray(matlab.double(i)))
+    if len(lst) == 1:
+        return lst[0]
+    return tuple(lst)
+
 
 def to_python(*args) -> Union[ndarray, tuple[ndarray, ...]]:
     """
@@ -228,4 +239,18 @@ def plot_gpu():
     """
     本函数利用MATLAB的gpuArray，使用gpu储存数组并进行数组的运算，然后将结果传入cpu进行图形的绘制
     """
-    ...
+    if not 2 <= (length := len(args)) <= 3:
+        raise ValueError("输入的参数数量错误，应该先输入eng后输入二或三个变量")
+    if length == 3:
+        x, y, z = to_matlab(args)
+        add_workspace(eng, x, y, z)
+        eng.plot3(x, y, z)
+    if length == 2:
+        x, y = to_matlab(args)
+        add_workspace(eng, x, y)
+        eng.plot(x, y)
+    eng.ylabel("y")
+    eng.grid("on", nargout=0)
+    eng.title("pic")
+    eng.xlabel("x")
+    
