@@ -31,8 +31,7 @@ def connect_matlab():
 
 
 def to_matlab(*args) -> Union[matlab.double, tuple[matlab.double, ...]]:
-    """
-    将列表或numpy数组转化为matlab中的double数组
+    """ 将列表或numpy数组转化为matlab中的double数组
     :param args:
     :return: 返回与输入的参数相同数量的MATLAB中的double数组构成的元组（若只接受了一个参数则直接返回转化后的元组）
     """
@@ -187,6 +186,7 @@ def mesh(
 def mult_plot_str(eng, xticks, args, legend=None):
     """
     在同一组坐标下绘制多个折线图，需要提供横坐标的值,在最后输入由图例名称组成的列表作为关键字参数legend
+    用例：mp.mult_plot_str_gpu(eng,[1,2,3,4,5],[[1,2,3,4,5],[2,4,6,8,10]],['a','b'])
     :param eng: 引擎接口
     :param xticks: 横坐标
     :param args: 绘制的所有折线图的值的列表
@@ -261,7 +261,7 @@ def plot_gpu(eng, *args):
         eng.plot3(x, y, z)
     if length == 2:
         x, y = to_matlab_gpu(
-            eng, *args)  #这里的args需要解包，为啥to_matlab不需要解包，to_matlab_gpu就得解包？？？？？
+            eng, *args)  # 这里的args需要解包，为啥to_matlab不需要解包，to_matlab_gpu就得解包？？？？？
         # args是元组，长度为2，eng是引擎类型，也没问题，为什么要解包？？？？？先解一个再说把
         add_workspace(eng, x, y)
         eng.plot(x, y)
@@ -297,3 +297,27 @@ def mesh_gpu(
     eng.grid("on", nargout=0)
     eng.title("pic")
     eng.xlabel("x")
+
+
+def mult_plot_str_gpu(eng, xticks, args, legend=None):
+    """
+    在同一组坐标下绘制多个折线图，需要提供横坐标的值,在最后输入由图例名称组成的列表作为关键字参数legend
+    完全照抄mult_plot_str
+    用例：mp.mult_plot_str_gpu(eng,[1,2,3,4,5],[[1,2,3,4,5],[2,4,6,8,10]],['a','b'])
+    :param eng: 引擎接口
+    :param xticks: 横坐标
+    :param args: 绘制的所有折线图的值的列表
+    :param legend: 图例
+    :return:
+    """
+    length = len(xticks)
+    x = [i for i in range(1, length + 1)]
+    x = matlab.double(x)  # 这里有点离谱，x是[[1,2,3,...]]这个库确实不好排除错误，matlab的语法真的是稀烂
+    for i in args:
+        plot_gpu(eng, x[0], i)
+        eng.hold("on", nargout=0)
+    if legend is not None:
+        eng.legend(legend)
+    eng.xticks(x, nargout=0)
+    eng.xticklabels(xticks, nargout=0)
+    eng.hold("off", nargout=0)
