@@ -26,7 +26,7 @@ def connect_matlab():
             "未找到现有的MATLAB接口，记得前往MATLAB运行share_engine.m文件。（她还没有被删对嘛？）\n或者改为运行eng = matlab.engine.start_matlab()命令"
         )
     else:
-        (x,) = x
+        (x, ) = x
         return matlab.engine.connect_matlab(x)
 
 
@@ -43,9 +43,10 @@ def to_matlab(*args) -> Union[matlab.double, tuple[matlab.double, ...]]:
         return lst[0]
     return tuple(lst)
 
+
 def to_matlab_gpu(eng, *args):
     """
-    把一串数组转换为MATLAb的gpuArray
+    把一串数组转换为MATLAb的gpuArray，直接照抄的to_matlab
     """
     lst = []
     for i in args:
@@ -64,6 +65,19 @@ def to_python(*args) -> Union[ndarray, tuple[ndarray, ...]]:
     lst = []
     for i in args:
         lst.append(np.array(i))
+    if len(lst) == 1:
+        return lst[0]
+    return tuple(lst)
+
+
+def matlab_gpu_to_python(*args):
+    """
+    把MATLAB中的gpuArray转化为np数组，照抄to_python。目前不知道有什么用，但是以防万一先写一个
+    未经测试，可能有bug！！！
+    """
+    lst = []
+    for i in args:
+        lst.append(np.array(eng.gather(i)))
     if len(lst) == 1:
         return lst[0]
     return tuple(lst)
@@ -235,22 +249,22 @@ def SavePreview_plt_fig(*args, **kwargs):
         plt.close()
 
 
-def plot_gpu():
+def plot_gpu(eng, *args):
     """
     本函数利用MATLAB的gpuArray，使用gpu储存数组并进行数组的运算，然后将结果传入cpu进行图形的绘制
     """
     if not 2 <= (length := len(args)) <= 3:
         raise ValueError("输入的参数数量错误，应该先输入eng后输入二或三个变量")
     if length == 3:
-        x, y, z = to_matlab(args)
+        x, y, z = to_matlab_gpu(eng, args)
         add_workspace(eng, x, y, z)
         eng.plot3(x, y, z)
     if length == 2:
-        x, y = to_matlab(args)
+        x, y = to_matlab_gpu(eng, *args)#这里的args需要解包，为啥to_matlab不需要解包，to_matlab_gpu就得解包？？？？？
+        # args是元组，长度为2，eng是引擎类型，也没问题，为什么要解包？？？？？先解一个再说把
         add_workspace(eng, x, y)
         eng.plot(x, y)
     eng.ylabel("y")
     eng.grid("on", nargout=0)
     eng.title("pic")
     eng.xlabel("x")
-    
