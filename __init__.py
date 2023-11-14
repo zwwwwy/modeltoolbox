@@ -268,3 +268,33 @@ def plot_gpu(eng, *args):
     eng.grid("on", nargout=0)
     eng.title("pic")
     eng.xlabel("x")
+
+
+
+
+def mesh_gpu(
+    eng: matlab.engine.matlabengine.MatlabEngine,
+    x: np.ndarray,
+    y: np.ndarray,
+    z: str = None,
+):
+    """
+    完全照抄mesh，就是把数据改成gpuArray,离谱，这里就不用解包？？？？？？？？？？？？？？？？？？
+    """
+    if not z:
+        print("输入的参数数量错误，应该先输入eng后输入三个变量")
+    x, y = np.meshgrid(x, y)
+
+    # code = parser.expr(z).compile()  # 解析数学公式
+    code = ast.parse(z, mode='eval')  # parser是标准库的函数,但是在3.11中被删掉了,用这个来代替
+    z = eval(code)  # 计算z的值
+
+    x, y, z = to_matlab_gpu(x, y, z)
+
+    add_workspace(eng, x, y, z)
+
+    eng.mesh(x, y, z)
+    eng.ylabel("y")
+    eng.grid("on", nargout=0)
+    eng.title("pic")
+    eng.xlabel("x")
