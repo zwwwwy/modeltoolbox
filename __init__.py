@@ -223,3 +223,9 @@ def SavePreview_plt_fig(*args, **kwargs):
     if track == 1:
         plt.close()
 
+
+def plot_gpu():
+    """
+    本函数利用MATLAB的gpuArray，使用gpu储存数组并进行数组的运算，然后将结果传入cpu进行图形的绘制
+    """
+    ...
