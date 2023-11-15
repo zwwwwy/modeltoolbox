@@ -83,7 +83,7 @@ gpu版本，用法一样
 装饰器，用来运行plt.show()
 
 ### `save_plt_fig(path, hold)`
-保存图片的函数，默认放在当前文件目录下的pypic文件夹中，可以手动选定路径，保存的图片依照先后顺序按数字从小到大命名。默认画完当前图像后自动hold off，如果需要hold on，给hold传入'on'就可以了。
+保存图片的函数，默认放在当前文件目录下的pypic文件夹中，可以手动选定路径，保存的图片依照先后顺序按数字从小到大命名。默认画完当前图像后自动hold off，如果需要hold on，给hold传入'on'就可以了。<br/>
 用法：`save_plt_fig(path='./pic', hold='off')`
 
 ### SavePreview_plt_fig():
