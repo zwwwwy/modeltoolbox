@@ -238,7 +238,7 @@ def save_plt_fig(path="./pypic", hold="off"):
     global counts
     if not os.path.exists(path):
         os.mkdir(path)
-    plt.savefig(f"{path}\\{counts}.jpg")
+    plt.savefig(f"{path}/{counts}.jpg")
     counts += 1
     if hold == "on":
         pass
