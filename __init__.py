@@ -69,7 +69,7 @@ def to_python(*args) -> Union[ndarray, tuple[ndarray, ...]]:
     return tuple(lst)
 
 
-def matlab_gpu_to_python(*args):
+def matlab_gpu_to_python(eng, *args):
     """
     把MATLAB中的gpuArray转化为np数组，照抄to_python。目前不知道有什么用，但是以防万一先写一个
     未经测试，可能有bug！！！
@@ -164,18 +164,20 @@ def mesh(
     :param z: str
     :return: matlab图像
     """
+    if not isinstance(z, str):
+        x, y, z = to_matlab(x, y, z)
     if not z:
         print("输入的参数数量错误，应该先输入eng后输入三个变量")
-    x, y = np.meshgrid(x, y)
+        return
+        x, y = np.meshgrid(x, y)
 
-    # code = parser.expr(z).compile()  # 解析数学公式
-    code = ast.parse(z, mode='eval')  # parser是标准库的函数,但是在3.11中被删掉了,用这个来代替
-    z = eval(code)  # 计算z的值
-
-    x, y, z = to_matlab(x, y, z)
+        # 以下三行再python3.11中能用，原来的解析函数被删掉了，不知道这三个在老版py里能不能用
+        parsed_tree = ast.parse(z, mode='eval')
+        compiled = compile(parsed_tree, filename='<string>', mode='eval')
+        z = eval(compiled)
+        x, y, z = to_matlab(x, y, z)
 
     add_workspace(eng, x, y, z)
-
     eng.mesh(x, y, z)
     eng.ylabel("y")
     eng.grid("on", nargout=0)
@@ -280,18 +282,20 @@ def mesh_gpu(
     """
     完全照抄mesh，就是把数据改成gpuArray,离谱，这里就不用解包？？？？？？？？？？？？？？？？？？
     """
+    if not isinstance(z, str):
+        x, y, z = to_matlab_gpu(x, y, z)
     if not z:
         print("输入的参数数量错误，应该先输入eng后输入三个变量")
-    x, y = np.meshgrid(x, y)
+        return
+        x, y = np.meshgrid(x, y)
 
-    # code = parser.expr(z).compile()  # 解析数学公式
-    code = ast.parse(z, mode='eval')  # parser是标准库的函数,但是在3.11中被删掉了,用这个来代替
-    z = eval(code)  # 计算z的值
-
-    x, y, z = to_matlab_gpu(x, y, z)
+        # 以下三行再python3.11中能用，原来的解析函数被删掉了，不知道这三个在老版py里能不能用
+        parsed_tree = ast.parse(z, mode='eval')
+        compiled = compile(parsed_tree, filename='<string>', mode='eval')
+        z = eval(compiled)
+        x, y, z = to_matlab_gpu(x, y, z)
 
     add_workspace(eng, x, y, z)
-
     eng.mesh(x, y, z)
     eng.ylabel("y")
     eng.grid("on", nargout=0)
