@@ -227,7 +227,7 @@ def preview(func):
     return inner
 
 
-def save_plt_fig(path="E:\\图片\\pypic", hold="off"):
+def save_plt_fig(path="./pypic", hold="off"):
     """保存plt中的图片，按数字顺序为图片命名，默认保存到E:\图片\pypic，可手动指定保存路径（绝对路径！！）
     另：程序默认画完一张图自动hold off，如需设置hold on需要给hold传入参数"on"
 
