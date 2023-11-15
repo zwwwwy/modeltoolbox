@@ -49,15 +49,49 @@ plot函数的gpu版本，这个函数有点离谱，明明跟上面的函数结�
 用法：`plot_gpu(eng, x, y)`
 
 ### `mesh(eng, x, y, z)`
-本函数画三维曲面的图像
+本函数画三维曲面的图像，支持两种使用方式。<br/>
+<br/>
+第一种是先在函数外用np完成自变量的网格化和因变量取值的计算，然后传入函数，就像这样。
+```python
+x = np.arange(-2, 2.1, 0.01)
+y = np.arange(-3, 3.1, 0.01)
 
+x, y = np.meshgrid(x, y)
+z = x*np.exp(-x**2 - y**2)
+mp.mesh(eng, x, y, z)
+```
+<br/>
+
+第二种是只传入自变量的范围和因变量对自变量的函数（字符串类型，不带等号），就像这样。<br/>
+```python
+x = np.arange(-2, 2.1, 0.01)
+y = np.arange(-3, 3.1, 0.01)
+
+mp.mesh(eng, x, y, "x*np.exp(-x**2-y**2)")
+```
+### `mesh_gpu()`
+mesh函数的gpu版本，使用方法并无二致
+
+### `mult_plot_str(eng, xticks, args, legend=None)`
+本函数用来绘制一张图上有多条曲线的图像。<br/>
+用法：`mp.mult_plot_str(eng, [[1,2,3], [2,3,6]], ['a','b'])`
+
+### `mult_plot_str_gpu()`
+gpu版本，用法一样
+
+### `preview(func)`
+装饰器，用来运行plt.show()
+
+### `save_plt_fig(path, hold)`
+保存图片的函数，默认放在当前文件目录下的pypic文件夹中，可以手动选定路径，保存的图片依照先后顺序按数字从小到大命名。默认画完当前图像后自动hold off，如果需要hold on，给hold传入'on'就可以了。
+用法：`save_plt_fig(path='./pic', hold='off')`
+
+### SavePreview_plt_fig():
+跟上面的函数用法完全相同，保存以后会自动跳出函数图像的图像，我觉得这里没办法设置hold on，但是还是写了一个判断传入的hold是on还是off的功能。
 
 ## 问题
-### 一、
 mp.plot_gpu()函数里面to_matlab_gpu()的调用里，给后者传入args的参数需要解包。暂时照这个做了
 妈的我这个函数是直接搬的mp.plot()为什么那个函数不用解包这个函数就得解包？？？？？？？？？？？？？
 离谱
 args确实是元组而且确实长度为2
-### 二、
-利用gpu在一张图上绘制多个折线图的函数还没有写，改天在写
 
