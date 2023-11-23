@@ -7,7 +7,10 @@ import ast
 from typing import Tuple, Any
 import matplotlib.pyplot as plt
 import os
+import threading
+from contextlib import contextmanager
 
+_local = threading.local()
 counts = 1
 
 
@@ -349,3 +352,30 @@ def mult_plot_str_gpu(eng, xticks, args, legend=None):
     eng.xticks(x, nargout=0)
     eng.xticklabels(xticks, nargout=0)
     eng.hold("off", nargout=0)
+
+
+@contextmanager
+def acquire(*locks):
+    """acquire.
+    这个是抄的网上的锁管理器
+
+    Args:
+        locks:
+    """
+    locks = sorted(locks, key=lambda x: id(x))
+
+    acquired = getattr(_local, 'acquired', [])
+    if acquired and max(id(lock) for lock in acquired) >= id(locks[0]):
+        raise RuntimeError('Lock Order Violation')
+
+    acquired.extend(locks)
+    _local.acquired = acquired
+
+    try:
+        for lock in locks:
+            lock.acquire()
+        yield
+    finally:
+        for lock in reversed(locks):
+            lock.release()
+        del acquired[-len(locks):]
