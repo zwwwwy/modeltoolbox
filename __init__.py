@@ -28,7 +28,7 @@ def connect_matlab():
             "未找到现有的MATLAB接口，记得前往MATLAB运行share_engine.m文件。（她还没有被删对嘛？）\n或者改为运行eng = matlab.engine.start_matlab()命令"
         )
     else:
-        (x, ) = x
+        x = x[-1]
         return matlab.engine.connect_matlab(x)
 
 
