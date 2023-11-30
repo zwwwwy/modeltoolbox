@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import os
 import threading
 from contextlib import contextmanager
+import multiprocessing
 
 _local = threading.local()
 counts = 1
@@ -141,7 +142,11 @@ def add_workspace(eng, x, y, z=None):
         eng.workspace["z"] = z
 
 
-def plot(eng: matlab.engine.matlabengine.MatlabEngine, *args):
+def plot(eng: matlab.engine.matlabengine.MatlabEngine,
+         *args,
+         title='pic',
+         xlabel='x',
+         ylabel='y'):
     """快速出线图，第一个参数为eng，剩下的两或三个参数为二或三个变量
 
     Args:
@@ -158,18 +163,20 @@ def plot(eng: matlab.engine.matlabengine.MatlabEngine, *args):
         x, y = to_matlab(args)
         add_workspace(eng, x, y)
         eng.plot(x, y)
-    eng.ylabel("y")
+    eng.ylabel(ylabel)
     eng.grid("on", nargout=0)
-    eng.title("pic")
-    eng.xlabel("x")
+    eng.title(title)
+    eng.xlabel(xlabel)
 
 
-def mesh(
-    eng: matlab.engine.matlabengine.MatlabEngine,
-    x: np.ndarray,
-    y: np.ndarray,
-    z: str = None,
-):
+def mesh(eng: matlab.engine.matlabengine.MatlabEngine,
+         x: np.ndarray,
+         y: np.ndarray,
+         z: str = None,
+         title='pic',
+         xlabel='x',
+         ylabel='y',
+         zlabel='z'):
     """输入参数应该为eng,x,y,z。其中，z的格式要求为等号左边只留下z，等号右边作为参数输入\n
     解析的所有公式中的sin、exp等数学函数需要带np.前缀！！！！（导入math不知道为什么会报错）
 
@@ -194,10 +201,11 @@ def mesh(
 
     add_workspace(eng, x, y, z)
     eng.mesh(x, y, z)
-    eng.ylabel("y")
+    eng.ylabel(ylabel)
     eng.grid("on", nargout=0)
-    eng.title("pic")
-    eng.xlabel("x")
+    eng.title(title)
+    eng.xlabel(xlabel)
+    eng.zlabel(zlabel)
 
 
 def mult_plot_str(eng, xticks, args, legend=None):
@@ -271,7 +279,7 @@ def SavePreview_plt_fig(*args, **kwargs):
         plt.close()
 
 
-def plot_gpu(eng, *args):
+def plot_gpu(eng, *args, title='pic', xlabel='x', ylabel='y'):
     """本函数利用MATLAB的gpuArray，使用gpu储存数组并进行数组的运算，然后将结果传入cpu进行图形的绘制
 
     Args:
@@ -290,20 +298,22 @@ def plot_gpu(eng, *args):
         # args是元组，长度为2，eng是引擎类型，也没问题，为什么要解包？？？？？先解一个再说把
         add_workspace(eng, x, y)
         eng.plot(x, y)
-    eng.ylabel("y")
+    eng.ylabel(ylabel)
     eng.grid("on", nargout=0)
-    eng.title("pic")
-    eng.xlabel("x")
+    eng.title(title)
+    eng.xlabel(xlabel)
 
 
-def mesh_gpu(
-    eng: matlab.engine.matlabengine.MatlabEngine,
-    x: np.ndarray,
-    y: np.ndarray,
-    z: str = None,
-):
+def mesh_gpu(eng: matlab.engine.matlabengine.MatlabEngine,
+             x: np.ndarray,
+             y: np.ndarray,
+             z: str = None,
+             title='pic',
+             xlabel='x',
+             ylabel='y',
+             zlabel='z'):
     """完全照抄mesh，就是把数据改成gpuArray,离谱，这里就不用解包？？？？？？？？？？？？？？？？？？
-    
+
     Args:
         eng (matlab.engine.matlabengine.MatlabEngine): eng
         x (np.ndarray): x
@@ -325,10 +335,11 @@ def mesh_gpu(
 
     add_workspace(eng, x, y, z)
     eng.mesh(x, y, z)
-    eng.ylabel("y")
+    eng.ylabel(ylabel)
     eng.grid("on", nargout=0)
-    eng.title("pic")
-    eng.xlabel("x")
+    eng.title(title)
+    eng.xlabel(xlabel)
+    eng.zlabel(zlabel)
 
 
 def mult_plot_str_gpu(eng, xticks, args, legend=None):
@@ -379,3 +390,6 @@ def acquire(*locks):
         for lock in reversed(locks):
             lock.release()
         del acquired[-len(locks):]
+
+
+# def mesh_multiprocessing():

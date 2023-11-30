@@ -5,6 +5,7 @@ bridge between python and matlab
 2023.11.14 <br/>
 终于重写完了，从七点多写到十一点半，开会也一句话没听见<br />
 以下是目前本库所有函数的简介
+目前所有使用matlab绘图的函数都实现了可以自定义标题和轴标签的功能，关键字参数名为：title,xlabel,ylabel
 
 ### `connect_matlab()`
 本函数用于接收matlab共享的引擎接口，若不共享可以使用matlab.engine.start_matlab()来创建新的接口<br />
