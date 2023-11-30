@@ -9,7 +9,8 @@ bridge between python and matlab
 
 ### `connect_matlab()`
 本函数用于接收matlab共享的引擎接口，若不共享可以使用matlab.engine.start_matlab()来创建新的接口<br />
-用法：`eng = mp.connect_matlab()`也可以传入元组
+用法：`eng = mp.connect_matlab()`也可以传入元组<br/>
+这个函数的行为被改成连接最后一个共享的matlab接口了，因为linux的matlab做的实在是一坨，关掉一个matlab以后他共享的接口居然是关不掉的，而且这个破matlab还老是把opengl的设置改回去，搞得我好几次都要开两遍接口，真的烦
 
 ### `to_matlab(*args)`
 本函数主要用作本库内函数自行调用。<br />
