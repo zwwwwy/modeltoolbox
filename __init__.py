@@ -392,4 +392,88 @@ def acquire(*locks):
         del acquired[-len(locks):]
 
 
-# def mesh_multiprocessing():
+# def mesh_multiprocessing(eng,
+#                          x,
+#                          y,
+#                          z,
+#                          title='pic',
+#                          xlabel='x',
+#                          ylabel='y',
+#                          zlabel='z'):
+#     func = eval(f'lambda x,y:{z}')
+#     cpu_nums = os.cpu_count()
+#     xs = np.array_split(x, cpu_nums)
+#
+#     z = []
+#
+#     def calculator(x, y , func):
+#         nonlocal z
+#         # y = np.arange(-7, 8.1, 0.001)
+#         x, y = np.meshgrid(x, y)
+#         z.append(func(x, y))
+#         print(z)
+#
+#     k = 0
+#     for i in xs:
+#         exec(f"m{k} = multiprocessing.Process(target=calculator, args=(i, y, func))")
+#         exec(f"m{k}.start()")
+#         k += 1
+#
+#     for i in range(k):
+#         exec(f"m{i}.join()")
+#     # with multiprocessing.Pool(cpu_nums) as p:
+#     #     lst = [(i, y, func) for i in xs]
+#     #     z = np.hstack(p.map(calculator, lst))
+#     print(z)
+
+def mesh_multiprocessing(eng, x, y, z, title='pic', xlabel='x', ylabel='y', zlabel='z'):
+    func = eval(f'lambda x, y: {z}')
+    cpu_nums = os.cpu_count()
+    xs = np.array_split(x, cpu_nums)
+    
+    manager = multiprocessing.Manager()
+    result_queue = manager.Queue()  # 创建进程安全的队列
+
+    def calculator(x, y, func, result_queue):
+        # 计算网格数据
+        x, y = np.meshgrid(x, y)
+        result = func(x, y)
+        result_queue.put(result)  # 将结果放入队列
+
+    processes = []
+    for i in xs:
+        p = multiprocessing.Process(target=calculator, args=(i, y, func, result_queue))
+        p.start()
+        processes.append(p)
+
+    for p in processes:
+        p.join()
+
+    # 从队列中按顺序获取结果
+    final_result = []
+    while not result_queue.empty():
+        final_result.append(result_queue.get())
+    stacked = np.hstack(result)
+    print(stacked.shape)
+    # mesh(eng, x, y, stacked)
+
+
+# def mesh(eng: matlab.engine.matlabengine.MatlabEngine,)
+#     if not z:
+#         print("输入的参数数量错误，应该先输入eng后输入三个变量")
+#         return
+#         x, y = np.meshgrid(x, y)
+#
+#         # 以下三行再python3.11中能用，原来的解析函数被删掉了，不知道这三个在老版py里能不能用
+#         parsed_tree = ast.parse(z, mode='eval')
+#         compiled = compile(parsed_tree, filename='<string>', mode='eval')
+#         z = eval(compiled)
+#         x, y, z = to_matlab(x, y, z)
+#
+#     add_workspace(eng, x, y, z)
+#     eng.mesh(x, y, z)
+#     eng.ylabel(ylabel)
+#     eng.grid("on", nargout=0)
+#     eng.title(title)
+#     eng.xlabel(xlabel)
+#     eng.zlabel(zlabel)
