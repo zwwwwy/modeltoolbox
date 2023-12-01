@@ -435,7 +435,7 @@ def mesh_multiprocessing(eng,
         eng.xlabel(xlabel)
         eng.zlabel(zlabel)
     else:
-        return mpmesh_stacked
+        return stack
 
 
 def calculate(x):

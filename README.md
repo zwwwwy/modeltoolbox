@@ -122,22 +122,22 @@ def func(C, a1, q):  # C是初始污垢量
             return -1
 
 
-def suan(lst):
-    # x = np.linspace(0.81, 0.99, 500)
-    x = lst
-    y = np.linspace(0.01, 0.99, 500)
-    x, y = np.meshgrid(x, y)
+def suan(x,y):
     z = np.zeros((len(x), len(x[0])))
     for i in range(len(x)):
         for j in range(len(x[0])):
             z[i][j] = func(21, x[i][j], y[i][j])
     return z
 
+x = np.linspace(0.01,0.99,500)
+y = x.copy()
+
 eng = mp.connect_matlab()
-t1 = time()
 mp.mesh_multiprocessing(eng, x, y ,suan)
+eng.quit()
 ```
-感觉上面这段代码有优化的空间，至少在mathon那里可以考虑不用继续变量网格化了，但是现在这样可以跑了，实测大约比自己写纯并行代码慢了0.7秒左右，我实在是写累了不想改了，以后有机会在说吧。<br/>
+
+上面这段代码有优化的空间，现在他利用在global作用域中添加变量的方式来进行并行运算，目前我尝试过两种方法，第一种是创建闭包的计算函数，但是进程池的map方法不支持这样。第二种是通过手动和创建多个进程，并且用multiprocessing库里的队列来管理这几个进程，但是并没有达到管理的效果，最后的结果能算是能算，但是各个进程放入结果的顺序跟启动顺序不一样，最后出来的图片也是x轴上的排列顺序是混乱的。<br/>
 另外提一句，这个函数提供了一个新的参数`useMatlab`这个参数表示是否利用matlab进行绘图，因为我测试了好多次，发现进程数一直是1，后来才发现那是因为cpu几秒钟就把结果算出来了，是matlab图画的太慢了，他matlab画图居然是单核运行的，已经跟不上python的速度了，所以如果让`useMatlab=False`，代码会返回计算好的结果，放到第一个例子里面就是每一个x和y所对应所有函数值的集合，后续如果能找到效率更高的绘图方法可以在此基础上改进一下。<br/>
 
 ### calculate():
