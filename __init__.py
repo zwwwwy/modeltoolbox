@@ -429,6 +429,11 @@ def mesh_multiprocessing(eng,
     if useMatlab:
         mpmesh_stacked = stack
         mesh(eng, x, y, mpmesh_stacked)
+        eng.ylabel(ylabel)
+        eng.grid("on", nargout=0)
+        eng.title(title)
+        eng.xlabel(xlabel)
+        eng.zlabel(zlabel)
     else:
         return mpmesh_stacked
 
