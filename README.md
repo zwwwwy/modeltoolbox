@@ -91,9 +91,64 @@ gpu版本，用法一样
 ### SavePreview_plt_fig():
 跟上面的函数用法完全相同，保存以后会自动跳出函数图像的图像，我觉得这里没办法设置hold on，但是还是写了一个判断传入的hold是on还是off的功能。
 
+### mesh_multiprocessing(eng, x, y, calculator, title='pic', xlabel='x', ylabel='y', zlabel='z', useMatlab=True):
+本函数用作并行计算复杂的图像，支持简单的字符串格式的简单函数关系，也支持复杂逻辑的运算<br/>
+用法这里放两个：<br/>首先是简单的函数关系的例子
+```python
+x = np.arange(-7, 7.1, 0.001)
+y = np.arange(-8, 8.1, 0.001)
+eng = mp.connect_matlab()
+mp.mesh_multiprocessing(eng, x, y ,' x * np.exp(-x * 2 - y**2)')
+```
+<br/>
+第二个是复杂逻辑运算的例子，就是数维杯内次的第二问嘛<br/>
+
+```python
+def func(C, a1, q):  # C是初始污垢量
+    C0 = C
+    k = 0
+    a = a1
+    while True:
+        k += 1
+        tmp = C * a  # 当次洗掉的污垢的量
+        C = C - tmp
+        a = a * q
+        # if C/C0 <=0.001:  #  阈值
+        if C / C0 <= 0.001:  #  阈值
+            # print("衣服洗完了")
+            # print(f"这是第{k}次")
+            return k
+        if k >= 1000:
+            return -1
+
+
+def suan(lst):
+    # x = np.linspace(0.81, 0.99, 500)
+    x = lst
+    y = np.linspace(0.01, 0.99, 500)
+    x, y = np.meshgrid(x, y)
+    z = np.zeros((len(x), len(x[0])))
+    for i in range(len(x)):
+        for j in range(len(x[0])):
+            z[i][j] = func(21, x[i][j], y[i][j])
+    return z
+
+eng = mp.connect_matlab()
+t1 = time()
+mp.mesh_multiprocessing(eng, x, y ,suan)
+```
+感觉上面这段代码有优化的空间，至少在mathon那里可以考虑不用继续变量网格化了，但是现在这样可以跑了，实测大约比自己写纯并行代码慢了0.7秒左右，我实在是写累了不想改了，以后有机会在说吧。<br/>
+另外提一句，这个函数提供了一个新的参数`useMatlab`这个参数表示是否利用matlab进行绘图，因为我测试了好多次，发现进程数一直是1，后来才发现那是因为cpu几秒钟就把结果算出来了，是matlab图画的太慢了，他matlab画图居然是单核运行的，已经跟不上python的速度了，所以如果让`useMatlab=False`，代码会返回计算好的结果，放到第一个例子里面就是每一个x和y所对应所有函数值的集合，后续如果能找到效率更高的绘图方法可以在此基础上改进一下。<br/>
+
+### calculate():
+上面`mesh_multiprocessing()`的辅助函数
+
 ## 问题
 mp.plot_gpu()函数里面to_matlab_gpu()的调用里，给后者传入args的参数需要解包。暂时照这个做了
-妈的我这个函数是直接搬的mp.plot()为什么那个函数不用解包这个函数就得解包？？？？？？？？？？？？？
-离谱
-args确实是元组而且确实长度为2
+妈的我这个函数是直接搬的mp.plot()为什么那个函数不用解包这个函数就得解包？？？？？？？？？？？？？<br/>
+离谱<br/>
+args确实是元组而且确实长度为2<br/>
+<br/>
+<br/>
+优化mesh_multiprocessing函数，具体的优化方向上面写了
 
