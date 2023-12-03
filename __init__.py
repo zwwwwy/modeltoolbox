@@ -10,6 +10,7 @@ import os
 import threading
 from contextlib import contextmanager
 import multiprocessing
+import seaborn as sns
 
 _local = threading.local()
 counts = 1
@@ -442,3 +443,16 @@ def calculate(x):
     global mpmesh_y
     x, y = np.meshgrid(x, mpmesh_y)
     return mpmesh_caculator(x, y)
+
+
+def heatmap(DataFrame, title='pic'):
+    """heatmap.快速绘制出一个含有数字的DataFrame的相关系数热力图
+
+    Args:
+        DataFrame: pd.DataFrame
+        title:
+    """
+    numeric_columns = DataFrame.select_dtypes(include=['number'])
+    sns.heatmap(numeric_columns.corr(), annot=True)
+    plt.title(title)
+    plt.show()
