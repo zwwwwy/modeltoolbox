@@ -445,7 +445,7 @@ def calculate(x):
     return mpmesh_caculator(x, y)
 
 
-def heatmap(DataFrame, title='pic'):
+def corr_heatmap(DataFrame, title='pic'):
     """heatmap.快速绘制出一个含有数字的DataFrame的相关系数热力图
 
     Args:
