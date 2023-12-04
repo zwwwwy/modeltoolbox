@@ -452,6 +452,9 @@ def corr_heatmap(DataFrame, title='pic'):
         DataFrame: pd.DataFrame
         title:
     """
+    for column in DataFrame.columns:
+        if DataFrame[column].dtype == bool:
+            DataFrame[column] = DataFrame[column].astype(int)
     numeric_columns = DataFrame.select_dtypes(include=['number'])
     sns.heatmap(numeric_columns.corr(), annot=True)
     plt.title(title)
