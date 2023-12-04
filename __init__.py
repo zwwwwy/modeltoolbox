@@ -402,7 +402,8 @@ def mesh_multiprocessing(eng,
                          xlabel='x',
                          ylabel='y',
                          zlabel='z',
-                         useMatlab=True):
+                         useMatlab=True,
+                         n_jobs=None):
     """mesh_multiprocessing.本函数与下方的calculate函数共同组成并行计算函数体
        用法：mp.mesh_multiprocessing(eng, x, y ,' x * np.exp(-x * 2 - y**2)')
 
@@ -416,16 +417,19 @@ def mesh_multiprocessing(eng,
         ylabel:
         zlabel:
         useMatlab:
+        n_jobs:并行数，默认为cpu核心数量
     """
     global mpmesh_lsts, cpu_nums, mpmesh_x, mpmesh_y, mpmesh_caculator
-    mpmesh_lsts = np.array_split(x, cpu_nums)
+    if n_jobs is None:
+        n_jobs = cpu_nums
+    mpmesh_lsts = np.array_split(x, n_jobs)
     if isinstance(calculator, str):
         mpmesh_caculator = eval(f"lambda x,y:{calculator}")
     else:
         mpmesh_caculator = calculator
     mpmesh_y = y
     mpmesh_x = x
-    with multiprocessing.Pool(20) as p:
+    with multiprocessing.Pool(n_jobs) as p:
         stack = np.hstack(p.map(calculate, mpmesh_lsts))
     if useMatlab:
         mpmesh_stacked = stack
