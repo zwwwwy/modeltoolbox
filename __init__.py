@@ -11,6 +11,8 @@ import threading
 from contextlib import contextmanager
 import multiprocessing
 import seaborn as sns
+from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.model_selection import cross_val_score
 
 _local = threading.local()
 counts = 1
@@ -463,3 +465,28 @@ def corr_heatmap(DataFrame, title='pic'):
     sns.heatmap(numeric_columns.corr(), annot=True)
     plt.title(title)
     plt.show()
+
+
+def sklearn_model_report(model, train_data, test_data, scoring='accuracy'):
+    """sklearn_model_report.本函数用于输出已训练好的sklearn模型的各项性能参数
+
+    Args:
+        model: 已训练好的模型
+        train_data: 数据集（不含结果）
+        test_data: train_data对应的正确结果
+        scoring: 最后要输出的参数的名称，如accuracy, precision, recall，如果只想求一个就输入字符串，否则用一个列表框起来
+    """
+    pred = model.predict(train_data)
+    print('混淆矩阵如下：')
+    print(confusion_matrix(test_data, pred), '\n')
+    print('查全率查准率等各项指标如下：')
+    print(classification_report(test_data, pred))
+
+    if isinstance(scoring, list):
+        for i in scoring:
+            _train = cross_val_score(model, train_data, test_data, scoring=i)
+            print(f"在给出的训练集上，本模型{i}指标的多次预测平均值为：{_train.mean()}")
+
+    if isinstance(scoring, str):
+        _train = cross_val_score(model, train_data, test_data, scoring=scoring)
+        print(f"在给出的训练集上，本模型{scoring}指标的多次预测平均值为：{_train.mean()}")

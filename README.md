@@ -88,10 +88,10 @@ gpu版本，用法一样
 保存图片的函数，默认放在当前文件目录下的pypic文件夹中，可以手动选定路径，保存的图片依照先后顺序按数字从小到大命名。默认画完当前图像后自动hold off，如果需要hold on，给hold传入'on'就可以了。<br/>
 用法：`save_plt_fig(path='./pic', hold='off')`
 
-### SavePreview_plt_fig():
+### `SavePreview_plt_fig():`
 跟上面的函数用法完全相同，保存以后会自动跳出函数图像的图像，我觉得这里没办法设置hold on，但是还是写了一个判断传入的hold是on还是off的功能。
 
-### mesh_multiprocessing(eng, x, y, calculator, title='pic', xlabel='x', ylabel='y', zlabel='z', useMatlab=True):
+### `mesh_multiprocessing(eng, x, y, calculator, title='pic', xlabel='x', ylabel='y', zlabel='z', useMatlab=True):`
 本函数用作并行计算复杂的图像，支持简单的字符串格式的简单函数关系，也支持复杂逻辑的运算<br/>
 用法这里放两个：<br/>首先是简单的函数关系的例子
 ```python
@@ -140,8 +140,9 @@ eng.quit()
 上面这段代码有优化的空间，现在他利用在global作用域中添加变量的方式来进行并行运算，目前我尝试过两种方法，第一种是创建闭包的计算函数，但是进程池的map方法不支持这样。第二种是通过手动和创建多个进程，并且用multiprocessing库里的队列来管理这几个进程，但是并没有达到管理的效果，最后的结果能算是能算，但是各个进程放入结果的顺序跟启动顺序不一样，最后出来的图片也是x轴上的排列顺序是混乱的。<br/>
 另外提一句，这个函数提供了一个新的参数`useMatlab`这个参数表示是否利用matlab进行绘图，因为我测试了好多次，发现进程数一直是1，后来才发现那是因为cpu几秒钟就把结果算出来了，是matlab图画的太慢了，他matlab画图居然是单核运行的，已经跟不上python的速度了，所以如果让`useMatlab=False`，代码会返回计算好的结果，放到第一个例子里面就是每一个x和y所对应所有函数值的集合，后续如果能找到效率更高的绘图方法可以在此基础上改进一下。<br/>
 
-### calculate():
-上面`mesh_multiprocessing()`的辅助函数
+### `calculate():`
+上面`mesh_multiprocessing()`的辅助函数  
+
 
 ## 问题
 mp.plot_gpu()函数里面to_matlab_gpu()的调用里，给后者传入args的参数需要解包。暂时照这个做了
