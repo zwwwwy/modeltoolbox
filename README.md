@@ -143,6 +143,18 @@ eng.quit()
 ### `calculate():`
 上面`mesh_multiprocessing()`的辅助函数  
 
+### `corr_heatmap(DataFrame, title='pic')`
+快速绘制DataFrame中所有数字列的相关系数热力图（包括布尔列）
+
+### `sklearn_model_report(model, train_data, test_data, scoring='accuracy')`
+本函数用于输出已经训练好的**sklearn模块中的模型**的各项性能参数，scoring是某项或某些项参数
+的名称，用于输出那些参数的平均估计值  
+注意一下train_data是不含结果的数据集，test_data是前者的结果列而非测试集  
+
+用法：  
+```python
+sklearn_model_report(clv_SVM, train_X, train_Y)
+```
 
 ## 问题
 mp.plot_gpu()函数里面to_matlab_gpu()的调用里，给后者传入args的参数需要解包。暂时照这个做了
