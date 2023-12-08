@@ -27,3 +27,23 @@ def prefer_settings():
     plt.rcParams['font.sans-serif'] = ['SimHei']
     plt.rcParams['axes.unicode_minus'] = False
     pd.set_option('display.max_columns', None)
+
+
+def jiecheng(x):
+    return 1 if x <= 1 else jiecheng(x - 1) * x
+
+
+def C(a, b):
+    sum = 1
+    for i in range(b):
+        sum *= a
+        a -= 1
+    return sum / jiecheng(b)
+
+
+def A(a, b):
+    sum = 1
+    for i in range(b):
+        sum *= a
+        a -= 1
+    return sum
