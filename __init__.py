@@ -1,10 +1,9 @@
-from typing import Union
+from typing import Union, Tuple, Any
 
 import matlab.engine
 import numpy as np
 from numpy import ndarray
 import ast
-from typing import Tuple, Any
 import matplotlib.pyplot as plt
 import os
 import threading
@@ -327,11 +326,12 @@ def mesh_gpu(eng: matlab.engine.matlabengine.MatlabEngine,
         print("输入的参数数量错误，应该先输入eng后输入三个变量")
         return
         x, y = np.meshgrid(x, y)
-
-        # 以下三行再python3.11中能用，原来的解析函数被删掉了，不知道这三个在老版py里能不能用
-        parsed_tree = ast.parse(z, mode='eval')
-        compiled = compile(parsed_tree, filename='<string>', mode='eval')
-        z = eval(compiled)
+        calculator = eval(f"lambda x,y:{z}")
+        z = calculator(x, y)
+        # # 以下三行再python3.11中能用，原来的解析函数被删掉了，不知道这三个在老版py里能不能用
+        # parsed_tree = ast.parse(z, mode='eval')
+        # compiled = compile(parsed_tree, filename='<string>', mode='eval')
+        # z = eval(compiled)
         x, y, z = to_matlab_gpu(x, y, z)
 
     add_workspace(eng, x, y, z)
