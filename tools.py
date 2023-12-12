@@ -24,7 +24,9 @@ def printable(dataFrame):
 
 
 def prefer_settings():
-    plt.rcParams['font.sans-serif'] = ['SimHei']
+    # ubuntu下的系统自带字体
+    plt.rcParams['font.sans-serif'] = ['AR PL UMing CN']
+    # plt.rcParams['font.sans-serif'] = ['SimHei']
     plt.rcParams['axes.unicode_minus'] = False
     pd.set_option('display.max_columns', None)
 
