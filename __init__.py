@@ -451,6 +451,20 @@ def calculate(x):
     return mpmesh_caculator(x, y)
 
 
+def change_col_dtype(DataFrame, before, after):
+    """boolcol_to_int.将给定的DateFrame中的所有某(before)类型的列转化为其他(after)类型
+
+    Args:
+        DataFrame:
+        before: 转化前的类型名
+        after: 转化后的类型名
+    """
+    for column in DataFrame.columns:
+        if DataFrame[column].dtype == before:
+            DataFrame[column] = DataFrame[column].astype(after)
+    return DataFrame
+
+
 def corr_heatmap(DataFrame, title='pic'):
     """heatmap.快速绘制出一个含有数字的DataFrame的相关系数热力图
 
@@ -458,9 +472,7 @@ def corr_heatmap(DataFrame, title='pic'):
         DataFrame: pd.DataFrame
         title:
     """
-    for column in DataFrame.columns:
-        if DataFrame[column].dtype == bool:
-            DataFrame[column] = DataFrame[column].astype(int)
+    DataFrame = change_col_dtype(DataFrame, bool, int)
     numeric_columns = DataFrame.select_dtypes(include=['number'])
     sns.heatmap(numeric_columns.corr(), annot=True)
     plt.title(title)
