@@ -1,0 +1,10 @@
+LICENSE.md
+README.md
+setup.py
+mathon/__init__.py
+mathon/main.py
+mathon/tools.py
+mathon.egg-info/PKG-INFO
+mathon.egg-info/SOURCES.txt
+mathon.egg-info/dependency_links.txt
+mathon.egg-info/top_level.txt
