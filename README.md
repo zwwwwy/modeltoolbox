@@ -1,10 +1,122 @@
-# mathon
-bridge between python and matlab
+# modeltoolbox
+最近发现这玩意导包的速度实在是太慢了，居然有四秒，正好跟matlab无关的函数写的越来越多了，把代
+码重写一遍，顺便改个名字。  
+省去无关文件后主程序目录树结构如下：  
+.  
+├── LICENSE.md  
+├── modeltoolbox  
+│   ├── __init__.py  
+│   ├── main.py  
+│   ├── mathon.py  
+│   └── tools.py  
+├── README.md  
+├── setup.py  
+└── share_engine.m  
+因为matlab那个包和sns、sklearn的导入速度太慢，所以把软件全都模块化了，跟matlab有关的全放在
+mathon.py里，目前对sns之类的库的处理是在函数体里面导入，缺点就是函数的加载变慢了，所以考虑
+后期如果这些依赖用的足够多的话，就像matlab一样也单独成一个模块。  
+  
+也是为了提高导入速度，init.py中没有直接导入模块，所以如果要用到mathon和tools模块，只能通过
+`import modeltoolbox.mathon as mmp`的方法导入。
+  
+`main`：主模块的函数  
+`mathon`：原mathon中matlab相关函数的模块  
+`tools`：主要是一些附加的数学函数和设置相关的模块
 
-## 简介
-2023.11.14 <br/>
-终于重写完了，从七点多写到十一点半，开会也一句话没听见<br />
-以下是目前本库所有函数的简介
+## main
+以下是目前本模块所有函数的简介
+### `preview(func)`
+装饰器，用来运行plt.show()
+
+### `save_plt_fig(path, hold)`
+保存图片的函数，默认放在当前文件目录下的pypic文件夹中，可以手动选定路径，保存的图片依照先后顺序按数字从小到大命名。默认画完当前图像后自动hold off，如果需要hold on，给hold传入'on'就可以了。<br/>
+用法：
+
+```python
+save_plt_fig(path='./pic, hold='off)
+```
+### `SavePreview_plt_fig():`
+跟上面的函数用法完全相同，保存以后会自动跳出函数图像的图像，我觉得这里没办法设置hold on，但是还是写了一个判断传入的hold是on还是off的功能。
+
+### `grid_caculator_multiprocessing(x, y, calculator, title='pic', xlabel='x', ylabel='y', zlabel='z',n_jobs=None):`
+这里只是把mathon中的本函数和matlab有关的功能去掉以后照搬过来的，还没有作进一步的优化（下次一定）  
+本函数用作并行计算复杂的图像，支持简单的字符串格式的简单函数关系，也支持复杂逻辑的运算<br/>
+  
+函数返回计算后的函数值，需要画图的话还需要提供x和y（可能还需要网格化），绘图的选项现在还没写，具体方法参考下面mathon中的内容。
+  
+n_jobs是并行数，不指定的话默认是cpu最大逻辑核心数。mathon中的函数也有这个选项，忘写了，我也懒得加了哈哈。  
+用法这里放两个：<br/>首先是简单的函数关系的例子
+```python
+x = np.arange(-7, 7.1, 0.001)
+y = np.arange(-8, 8.1, 0.001)
+eng = mp.connect_matlab()
+result = mp.mesh_multiprocessing(eng, x, y ,' x * np.exp(-x * 2 - y**2)')
+```
+<br/>
+第二个是复杂逻辑运算的例子，就是数维杯内次的第二问嘛<br/>
+
+```python
+def func(C, a1, q):  # C是初始污垢量
+    C0 = C
+    k = 0
+    a = a1
+    while True:
+        k += 1
+        tmp = C * a  # 当次洗掉的污垢的量
+        C = C - tmp
+        a = a * q
+        # if C/C0 <=0.001:  #  阈值
+        if C / C0 <= 0.001:  #  阈值
+            # print("衣服洗完了")
+            # print(f"这是第{k}次")
+            return k
+        if k >= 1000:
+            return -1
+
+
+def suan(x,y):
+    z = np.zeros((len(x), len(x[0])))
+    for i in range(len(x)):
+        for j in range(len(x[0])):
+            z[i][j] = func(21, x[i][j], y[i][j])
+    return z
+
+x = np.linspace(0.01,0.99,500)
+y = x.copy()
+
+result = mtb.mesh_multiprocessing(eng, x, y ,suan)
+```
+
+上面这段代码有优化的空间，现在他利用在global作用域中添加变量的方式来进行并行运算，目前我尝试过两种方法，第一种是创建闭包的计算函数，但是进程池的map方法不支持这样。第二种是通过手动和创建多个进程，并且用multiprocessing库里的队列来管理这几个进程，但是并没有达到管理的效果，最后的结果能算是能算，但是各个进程放入结果的顺序跟启动顺序不一样，最后出来的图片也是x轴上的排列顺序是混乱的。<br/>
+另外提一句，这个函数提供了一个新的参数`useMatlab`这个参数表示是否利用matlab进行绘图，因为我测试了好多次，发现进程数一直是1，后来才发现那是因为cpu几秒钟就把结果算出来了，是matlab图画的太慢了，他matlab画图居然是单核运行的，已经跟不上python的速度了，所以如果让`useMatlab=False`，代码会返回计算好的结果，放到第一个例子里面就是每一个x和y所对应所有函数值的集合，后续如果能找到效率更高的绘图方法可以在此基础上改进一下。<br/>
+
+### `calculate():`
+上面`mesh_multiprocessing()`的辅助函数  
+
+### `change_col_dtype(DataFrame, before, after)`
+把DataFrame中的所有before类型的列转化为after类型。  
+用法：
+```python
+DataFrame = mp.change_col_dtype(DataFrame, bool, int)
+```
+
+### `corr_heatmap(DataFrame, title='pic')`
+快速绘制DataFrame中所有数字列的相关系数热力图（包括布尔列）
+
+### `sklearn_model_report(model, train_data, test_data, scoring='accuracy')`
+本函数用于输出已经训练好的**sklearn模块中的模型**的各项性能参数，scoring是某项或某些项参数
+的名称，用于输出那些参数的平均估计值  
+注意一下train_data是不含结果的数据集，test_data是前者的结果列而非测试集  
+
+用法：  
+```python
+sklearn_model_report(clv_SVM, train_X, train_Y)
+```
+
+
+
+## mathon
+以下是目前本模块所有函数的简介
 目前所有使用matlab绘图的函数都实现了可以自定义标题和轴标签的功能，关键字参数名为：title,xlabel,ylabel
 
 ### `connect_matlab()`
@@ -110,19 +222,6 @@ mp.mult_plot_str(eng, [[1,2,3], [2,3,6]], ['a','b'])
 ### `mult_plot_str_gpu()`
 gpu版本，用法一样
 
-### `preview(func)`
-装饰器，用来运行plt.show()
-
-### `save_plt_fig(path, hold)`
-保存图片的函数，默认放在当前文件目录下的pypic文件夹中，可以手动选定路径，保存的图片依照先后顺序按数字从小到大命名。默认画完当前图像后自动hold off，如果需要hold on，给hold传入'on'就可以了。<br/>
-用法：
-
-```python
-save_plt_fig(path='./pic, hold='off)
-```
-### `SavePreview_plt_fig():`
-跟上面的函数用法完全相同，保存以后会自动跳出函数图像的图像，我觉得这里没办法设置hold on，但是还是写了一个判断传入的hold是on还是off的功能。
-
 ### `mesh_multiprocessing(eng, x, y, calculator, title='pic', xlabel='x', ylabel='y', zlabel='z', useMatlab=True):`
 本函数用作并行计算复杂的图像，支持简单的字符串格式的简单函数关系，也支持复杂逻辑的运算<br/>
 用法这里放两个：<br/>首先是简单的函数关系的例子
@@ -172,29 +271,29 @@ eng.quit()
 上面这段代码有优化的空间，现在他利用在global作用域中添加变量的方式来进行并行运算，目前我尝试过两种方法，第一种是创建闭包的计算函数，但是进程池的map方法不支持这样。第二种是通过手动和创建多个进程，并且用multiprocessing库里的队列来管理这几个进程，但是并没有达到管理的效果，最后的结果能算是能算，但是各个进程放入结果的顺序跟启动顺序不一样，最后出来的图片也是x轴上的排列顺序是混乱的。<br/>
 另外提一句，这个函数提供了一个新的参数`useMatlab`这个参数表示是否利用matlab进行绘图，因为我测试了好多次，发现进程数一直是1，后来才发现那是因为cpu几秒钟就把结果算出来了，是matlab图画的太慢了，他matlab画图居然是单核运行的，已经跟不上python的速度了，所以如果让`useMatlab=False`，代码会返回计算好的结果，放到第一个例子里面就是每一个x和y所对应所有函数值的集合，后续如果能找到效率更高的绘图方法可以在此基础上改进一下。<br/>
 
-### `calculate():`
-上面`mesh_multiprocessing()`的辅助函数  
-
-### `change_col_dtype(DataFrame, before, after)`
-把DataFrame中的所有before类型的列转化为after类型。  
+## tools
+### `timer`
+装饰器，用来计算某个函数的运算时间。  
 用法：
 ```python
-DataFrame = mp.change_col_dtype(DataFrame, bool, int)
+@timer()
+def func(x, y):
+    return x + y
 ```
+### printable(dataFrame)
+d忘了大写了...懒得改了，反正这东西我就用过一次...
+用它只是因为载终端里用这个打印表格比较好看，但是后来发现pandas可以设置的也很好看，就不用了。
 
-### `corr_heatmap(DataFrame, title='pic')`
-快速绘制DataFrame中所有数字列的相关系数热力图（包括布尔列）
+### prefer_settings():
+喜欢的一些设置：  
+plt生成的图像用ubuntu里的一款自带的中文字体，所以这个函数用在windows和termux上不报错的可能性不大。  
+pandas打印表格的格式设置（用jukit的时候记得把终端窗口调到二等分屏幕）  
 
-### `sklearn_model_report(model, train_data, test_data, scoring='accuracy')`
-本函数用于输出已经训练好的**sklearn模块中的模型**的各项性能参数，scoring是某项或某些项参数
-的名称，用于输出那些参数的平均估计值  
-注意一下train_data是不含结果的数据集，test_data是前者的结果列而非测试集  
+### C(a,b)
+求组合数，$C_a^b$，就是C(a,b)，直接把a和b换成数即可
 
-用法：  
-```python
-sklearn_model_report(clv_SVM, train_X, train_Y)
-```
-
+### A(a,b)
+全排列，跟上面一样
 ## 问题
 mp.plot_gpu()函数里面to_matlab_gpu()的调用里，给后者传入args的参数需要解包。暂时照这个做了
 妈的我这个函数是直接搬的mp.plot()为什么那个函数不用解包这个函数就得解包？？？？？？？？？？？？？<br/>
