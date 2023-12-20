@@ -207,12 +207,14 @@ def mult_plot_str(eng, xticks, args, legend=None):
     length = len(xticks)
     x = [i for i in range(1, length + 1)]
     x = matlab.double(x)  # 这里有点离谱，x是[[1,2,3,...]]这个库确实不好排除错误，matlab的语法真的是稀烂
+    # xticks = tomatlab(xticks)
     for i in args:
         plot(eng, x[0], i)
         eng.hold("on", nargout=0)
     if legend is not None:
         eng.legend(legend)
     eng.xticks(x, nargout=0)
+    eng.xticklabels(xticks, nargout=0)
     eng.xticklabels(xticks, nargout=0)
     eng.hold("off", nargout=0)
 
@@ -279,29 +281,6 @@ def mesh_gpu(eng: matlab.engine.matlabengine.MatlabEngine,
     eng.title(title)
     eng.xlabel(xlabel)
     eng.zlabel(zlabel)
-
-
-def mult_plot_str_gpu(eng, xticks, args, legend=None):
-    """在同一组坐标下绘制多个折线图，需要提供横坐标的值,在最后输入由图例名称组成的列表作为关键字参数legend
-    完全照抄mult_plot_str
-
-    Args:
-        eng:
-        xticks:
-        args:
-        legend:
-    """
-    length = len(xticks)
-    x = [i for i in range(1, length + 1)]
-    x = matlab.double(x)  # 这里有点离谱，x是[[1,2,3,...]]这个库确实不好排除错误，matlab的语法真的是稀烂
-    for i in args:
-        plot_gpu(eng, x[0], i)
-        eng.hold("on", nargout=0)
-    if legend is not None:
-        eng.legend(legend)
-    eng.xticks(x, nargout=0)
-    eng.xticklabels(xticks, nargout=0)
-    eng.hold("off", nargout=0)
 
 
 def mesh_multiprocessing(eng,

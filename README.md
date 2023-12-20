@@ -217,10 +217,9 @@ mesh函数的gpu版本，使用方法并无二致
 用法：
 
 ```python
-mp.mult_plot_str(eng, [[1,2,3], [2,3,6]], ['a','b'])
+mp.mult_plot_str(eng,['a','b','c'], [[1,2,3], [2,3,6]], ['a','b'])
 ```
-### `mult_plot_str_gpu()`
-gpu版本，用法一样
+上面第一项是x轴各点的值，最后一项是每条线的标签
 
 ### `mesh_multiprocessing(eng, x, y, calculator, title='pic', xlabel='x', ylabel='y', zlabel='z', useMatlab=True):`
 本函数用作并行计算复杂的图像，支持简单的字符串格式的简单函数关系，也支持复杂逻辑的运算<br/>
