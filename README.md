@@ -5,10 +5,15 @@
 .  
 ├── LICENSE.md  
 ├── modeltoolbox  
-│   ├── __init__.py  
-│   ├── main.py  
-│   ├── mathon.py  
-│   └── tools.py  
+├── modeltoolbox
+│   ├── __init__.py
+│   ├── main.py
+│   ├── mathon
+│   │   ├── __init__.py
+│   │   └── main.py
+│   └── tools
+│       ├── __init__.py
+│       └── main.py
 ├── README.md  
 ├── setup.py  
 └── share_engine.m  
