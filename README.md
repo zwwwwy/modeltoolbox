@@ -2,20 +2,24 @@
 最近发现这玩意导包的速度实在是太慢了，居然有四秒，正好跟matlab无关的函数写的越来越多了，把代
 码重写一遍，顺便改个名字。  
 省去无关文件后主程序目录树结构如下：  
-.  
-├── LICENSE.md  
-├── modeltoolbox  
-│   ├── __init__.py  
-│   ├── main.py  
-│   ├── mathon  
-│   │   ├── __init__.py  
-│   │   └── main.py  
-│   └── tools  
-│       ├── __init__.py  
-│       └── main.py  
-├── README.md  
-├── setup.py  
-└── share_engine.m  
+
+```txt
+.
+├── LICENSE.md
+├── modeltoolbox
+│   ├── __init__.py
+│   ├── main.py
+│   ├── mathon
+│   │   ├── __init__.py
+│   │   └── main.py
+│   └── tools
+│       ├── __init__.py
+│       └── main.py
+├── README.md
+├── setup.py
+└── share_engine.m
+```
+
 因为matlab那个包和sns、sklearn的导入速度太慢，所以把软件全都模块化了，跟matlab有关的全放在
 mathon.py里，目前对sns之类的库的处理是在函数体里面导入，缺点就是函数的加载变慢了，所以考虑
 后期如果这些依赖用的足够多的话，就像matlab一样也单独成一个模块。  
