@@ -49,3 +49,5 @@ def A(a, b):
         sum *= a
         a -= 1
     return sum
+
+__all__ = ['timersss']

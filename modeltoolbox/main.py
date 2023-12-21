@@ -7,6 +7,7 @@ import os
 import threading
 from contextlib import contextmanager
 import multiprocessing
+import plotly.graph_objects as go
 
 _local = threading.local()
 counts = 1
@@ -98,7 +99,7 @@ def grid_caculator_multiprocessing(x,
                                    xlabel='x',
                                    ylabel='y',
                                    zlabel='z',
-                                   useMatlab=True,
+                                   draw_pic=True,
                                    n_jobs=None):
     """mesh_multiprocessing.本函数与下方的calculate函数共同组成并行计算函数体
        用法：mp.mesh_multiprocessing(eng, x, y ,' x * np.exp(-x * 2 - y**2)')
@@ -111,7 +112,6 @@ def grid_caculator_multiprocessing(x,
         xlabel:
         ylabel:
         zlabel:
-        useMatlab:
         n_jobs:并行数，默认为cpu核心数量
     """
     global mpmesh_lsts, cpu_nums, mpmesh_x, mpmesh_y, mpmesh_caculator
@@ -126,17 +126,16 @@ def grid_caculator_multiprocessing(x,
     mpmesh_x = x
     with multiprocessing.Pool(n_jobs) as p:
         stack = np.hstack(p.map(calculate, mpmesh_lsts))
-    # if useMatlab:
-    #     mpmesh_stacked = stack
-    #     mesh(eng, x, y, mpmesh_stacked)
-    #     eng.ylabel(ylabel)
-    #     eng.grid("on", nargout=0)
-    #     eng.title(title)
-    #     eng.xlabel(xlabel)
-    #     eng.zlabel(zlabel)
-    # else:
-    # return stack
-    return stack
+    if draw_pic:
+        fig = go.Figure(data=[go.Surface(x=x, y=y, z=stack)])
+
+        fig.update_layout(
+            title=title,  # 标题
+        )
+
+        fig.show()
+    else:
+        return stack
 
 
 def calculate(x):

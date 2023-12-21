@@ -38,7 +38,7 @@ save_plt_fig(path='./pic, hold='off)
 ### `SavePreview_plt_fig():`
 跟上面的函数用法完全相同，保存以后会自动跳出函数图像的图像，我觉得这里没办法设置hold on，但是还是写了一个判断传入的hold是on还是off的功能。
 
-### `grid_caculator_multiprocessing(x, y, calculator, title='pic', xlabel='x', ylabel='y', zlabel='z',n_jobs=None):`
+### `grid_caculator_multiprocessing(x, y, calculator, title='pic', xlabel='x', ylabel='y', zlabel='z',n_jobs=None,draw_pic=True):`
 这里只是把mathon中的本函数和matlab有关的功能去掉以后照搬过来的，还没有作进一步的优化（下次一定）  
 本函数用作并行计算复杂的图像，支持简单的字符串格式的简单函数关系，也支持复杂逻辑的运算<br/>
   
@@ -74,17 +74,18 @@ def func(C, a1, q):  # C是初始污垢量
             return -1
 
 
-def suan(x,y):
+def suan(x, y):
     z = np.zeros((len(x), len(x[0])))
     for i in range(len(x)):
         for j in range(len(x[0])):
             z[i][j] = func(21, x[i][j], y[i][j])
     return z
 
-x = np.linspace(0.01,0.99,500)
+
+x = np.linspace(0.01, 0.99, 500)
 y = x.copy()
 
-result = mtb.mesh_multiprocessing(eng, x, y ,suan)
+mtb.grid_caculator_multiprocessing(x, y, suan)
 ```
 
 上面这段代码有优化的空间，现在他利用在global作用域中添加变量的方式来进行并行运算，目前我尝试过两种方法，第一种是创建闭包的计算函数，但是进程池的map方法不支持这样。第二种是通过手动和创建多个进程，并且用multiprocessing库里的队列来管理这几个进程，但是并没有达到管理的效果，最后的结果能算是能算，但是各个进程放入结果的顺序跟启动顺序不一样，最后出来的图片也是x轴上的排列顺序是混乱的。<br/>
