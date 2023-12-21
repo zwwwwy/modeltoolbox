@@ -5,7 +5,6 @@
 .  
 ├── LICENSE.md  
 ├── modeltoolbox  
-├── modeltoolbox
 │   ├── __init__.py  
 │   ├── main.py  
 │   ├── mathon  
