@@ -323,3 +323,7 @@ args确实是元组而且确实长度为2<br/>
 <br/>
 优化mesh_multiprocessing函数，具体的优化方向上面写了
 
+## 依赖
+暂时先写在这里（含内建库）：  
+numpy、pandas、matplotlib、seaborn、plotly、preetytable、sklearn、tensorflow、matlabengine、os、threading、multiprocessing、contextlib、typing、time、（pytorch）
+非ubuntu系统需修改tools模块中的prefersettings()
