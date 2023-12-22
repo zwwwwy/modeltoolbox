@@ -110,7 +110,19 @@ DataFrame = mp.change_col_dtype(DataFrame, bool, int)
 ```
 
 ### `corr_heatmap(DataFrame, title='pic')`
-快速绘制DataFrame中所有数字列的相关系数热力图（包括布尔列）
+快速绘制DataFrame中所有数字列的相关系数热力图（包括布尔列）  
+用法：  
+
+```python
+mtb.corr_heatmap(df)
+```
+
+### `fast_corrscatter_evaluate(DataFrame, target, n=4)`
+快速绘制DataFrame中和target项相关系数最高的n列（默认为4）的相关系数散点图。
+
+```python
+mtb.fast_corrscatter_evaluate(df, 'median_house_value')
+```
 
 ### `sklearn_model_report(model, train_data, test_data, scoring='accuracy')`
 本函数用于输出已经训练好的**sklearn模块中的模型**的各项性能参数，scoring是某项或某些项参数
