@@ -169,6 +169,7 @@ def corr_heatmap(DataFrame, title='pic'):
     DataFrame = change_col_dtype(DataFrame, bool, int)
     numeric_columns = DataFrame.select_dtypes(include=['number'])
     heatmap(numeric_columns.corr(), annot=True)
+    print(numeric_columns.corr())
     plt.title(title)
     plt.show()
 
