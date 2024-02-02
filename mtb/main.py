@@ -72,9 +72,9 @@ def acquire(*locks):
     """
     locks = sorted(locks, key=lambda x: id(x))
 
-    acquired = getattr(_local, 'acquired', [])
+    acquired = getattr(_local, "acquired", [])
     if acquired and max(id(lock) for lock in acquired) >= id(locks[0]):
-        raise RuntimeError('Lock Order Violation')
+        raise RuntimeError("Lock Order Violation")
 
     acquired.extend(locks)
     _local.acquired = acquired
@@ -86,21 +86,23 @@ def acquire(*locks):
     finally:
         for lock in reversed(locks):
             lock.release()
-        del acquired[-len(locks):]
+        del acquired[-len(locks) :]
 
 
 cpu_nums = os.cpu_count()
 
 
-def grid_caculator_multiprocessing(x,
-                                   y,
-                                   calculator,
-                                   title='pic',
-                                   xlabel='x',
-                                   ylabel='y',
-                                   zlabel='z',
-                                   draw_pic=True,
-                                   n_jobs=None):
+def grid_caculator_multiprocessing(
+    x,
+    y,
+    calculator,
+    title="pic",
+    xlabel="x",
+    ylabel="y",
+    zlabel="z",
+    draw_pic=True,
+    n_jobs=None,
+):
     """mesh_multiprocessing.本函数与下方的calculate函数共同组成并行计算函数体
        用法：mp.mesh_multiprocessing(eng, x, y ,' x * np.exp(-x * 2 - y**2)')
 
@@ -158,7 +160,7 @@ def change_col_dtype(DataFrame, before, after):
     return DataFrame
 
 
-def corr_heatmap(DataFrame, title='pic'):
+def corr_heatmap(DataFrame, title="pic"):
     """heatmap.快速绘制出一个含有数字的DataFrame的相关系数热力图
 
     Args:
@@ -166,8 +168,9 @@ def corr_heatmap(DataFrame, title='pic'):
         title:
     """
     from seaborn import heatmap
+
     DataFrame = change_col_dtype(DataFrame, bool, int)
-    numeric_columns = DataFrame.select_dtypes(include=['number'])
+    numeric_columns = DataFrame.select_dtypes(include=["number"])
     heatmap(numeric_columns.corr(), annot=True)
     plt.title(title)
     plt.show()
@@ -183,12 +186,12 @@ def fast_corrscatter_evaluate(DataFrame, target, n=4):
     from pandas.plotting import scatter_matrix
 
     DataFrame = change_col_dtype(DataFrame, bool, int)
-    numeric_columns = DataFrame.select_dtypes(include=['number'])
+    numeric_columns = DataFrame.select_dtypes(include=["number"])
     attribute = numeric_columns.corr()[target].nlargest(n).index.tolist()
     scatter_matrix(DataFrame[attribute])
 
 
-def sklearn_model_report(model, train_data, label, scoring='accuracy'):
+def sklearn_model_report(model, train_data, label, scoring="accuracy"):
     """sklearn_model_report.本函数用于输出已训练好的sklearn模型的各项性能参数
 
     Args:
@@ -199,10 +202,11 @@ def sklearn_model_report(model, train_data, label, scoring='accuracy'):
     """
     from sklearn.metrics import confusion_matrix, classification_report
     from sklearn.model_selection import cross_val_score
+
     pred = model.predict(train_data)
-    print('混淆矩阵如下：')
-    print(confusion_matrix(label, pred), '\n')
-    print('查全率查准率等各项指标如下：')
+    print("混淆矩阵如下：")
+    print(confusion_matrix(label, pred), "\n")
+    print("查全率查准率等各项指标如下：")
     print(classification_report(label, pred))
 
     if isinstance(scoring, list):
@@ -217,10 +221,55 @@ def sklearn_model_report(model, train_data, label, scoring='accuracy'):
 
 def general_clf_report(predicted_data, label):
     from sklearn.metrics import confusion_matrix, classification_report
+
     if not isinstance(predicted_data, list):
         print("混淆矩阵如下")
-        print(confusion_matrix(label, predicted_data), '\n')
-        print('查全率查准率等各项指标如下：')
+        print(confusion_matrix(label, predicted_data), "\n")
+        print("查全率查准率等各项指标如下：")
         print(classification_report(label, predicted_data))
     else:
         ...
+
+
+def confusion_matrix_analysis(confusion_matrix):
+    """confusion_matrix_analysis. 输出俩图，第一个图是混淆矩阵的热力图
+    第二个图里面每一行是代表准确值，每一列代表预测值，所以每一个格子里的值代表某一准确值被预测为某错误的预测值的概率
+    返回accuracy, recall, false_positive_rate
+
+    Args:
+        confusion_matrix:
+    Returns:
+        accuracy: 查准率\精度
+        recall: 查全率\召回率\真正例率
+        false_positive_rate: 假正例率
+    """
+    from seaborn import heatmap
+
+    heatmap(confusion_matrix, annot=True)
+    plt.title("混淆矩阵热力图")
+    plt.show()
+
+    row_sum = confusion_matrix.sum(axis=1, keepdims=True)
+    col_sum = confusion_matrix.sum(axis=0, keepdims=True)
+
+    norm_confusion_matrix = confusion_matrix / row_sum
+    np.fill_diagonal(norm_confusion_matrix, 0)
+    heatmap(norm_confusion_matrix)
+    plt.title("错误率热力图")
+    plt.show()
+
+    true_positive = np.diagonal(confusion_matrix)
+    false_positive = col_sum - true_positive
+    true_negative = [
+        true_positive.sum() - true_positive[i] for i in range(len(true_positive))
+    ]
+
+    recall = true_positive / row_sum.T
+    accuracy = true_positive / col_sum
+    false_positive_rate = false_positive / (false_positive + true_negative)
+
+    print(f"查准率(精度)为\n{accuracy}\n")
+    print(f"真正例率(查全率/召回率)为\n{recall}\n")
+    print(f"假正例率为\n{false_positive_rate}")
+    return recall, accuracy, false_positive_rate
+

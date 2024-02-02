@@ -7,5 +7,6 @@ from .main import (
     corr_heatmap,
     fast_corrscatter_evaluate,
     sklearn_model_report,
-    general_clf_report
+    general_clf_report,
+    confusion_matrix_analysis
 )

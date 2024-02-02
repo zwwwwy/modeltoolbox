@@ -134,6 +134,45 @@ mtb.fast_corrscatter_evaluate(df, 'median_house_value')
 sklearn_model_report(clv_SVM, train_X, train_Y)
 ```
 
+### `confusion_matrix_analysis(confusion_matrix)`
+本函数用于分析任意混淆矩阵  
+用法：  
+
+```python
+conf_mx = [
+    [85,20],
+    [15,280]
+]
+
+precision, recall, FPR = mtb.confusion_matrix_analysis(conf_mx)
+```
+这个函数会输出两个图像，第一个是用混淆矩阵绘制的热力图，可以看到混淆矩阵的各项数值大小。第二个图像是错误率图像，这个图像是用混淆矩阵中每个元素分别除以对应行的和（实际为某类的数量），这个值的意义，举个例子，就是在所有的8中，错误的被预测为1，2，3...等其他类的分别的比率。因为第二个图像是研究错误率，所以把该图片对角线上的元素（预测正确的）都填充为0  
+在输出两个图像以后，本函数还会计算混淆矩阵的各个参数，然后一次输出并返回这些参数，比如上面用法的输出如下：  
+
+```txt
+查准率(精度)为
+[[0.85       0.93333333]]
+
+真正例率(查全率/召回率)为
+[[0.80952381 0.94915254]]
+
+假正例率为
+[[0.05084746 0.19047619]]
+```
+
+结合混淆矩阵的结构  
+|                  | Predicted Positive | Predicted Negative |
+|------------------|--------------------|--------------------|
+| Actual Positive  | TP (True Positives)| FN (False Negatives)|
+| Actual Negative  | FP (False Positives)| TN (True Negatives)|
+
+注意到这里输出的各项参数均为两个，而常见的参数分析只有一个，这两个值的意义是，第一个值表示把第一类作为正例，其他类作为反类计算的结果，第二个表示把第二个视作正类，其他类视作反类的计算结果，以此类推。  
+附上上面三个参数的计算公式:  
+$Precision = \frac{TP}{TP+FP}$  
+  
+$Recall = \frac{TP}{TP+FN}$  
+  
+$FPR = \frac{FP}{FP+TN}$  
 
 
 ## mathon
