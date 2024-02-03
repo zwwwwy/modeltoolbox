@@ -1,12 +1,9 @@
-from typing import Union, Tuple, Any
-
-import numpy as np
-from numpy import ndarray
-import matplotlib.pyplot as plt
 import os
 import threading
 from contextlib import contextmanager
 import multiprocessing
+import numpy as np
+import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
 _local = threading.local()
@@ -22,7 +19,7 @@ def preview(func):
 
 
 def save_plt_fig(path="./pypic", hold="off"):
-    """保存plt中的图片，按数字顺序为图片命名，默认保存到E:\图片\pypic，可手动指定保存路径（绝对路径！！）
+    """保存plt中的图片，按数字顺序为图片命名，默认保存到E:\\图片\\pypic，可手动指定保存路径（绝对路径！！）
     另：程序默认画完一张图自动hold off，如需设置hold on需要给hold传入参数"on"
 
     Args:
@@ -132,7 +129,7 @@ def grid_caculator_multiprocessing(
         fig = go.Figure(data=[go.Surface(x=x, y=y, z=stack)])
 
         fig.update_layout(
-            title=title,  # 标题
+            title=title, xlabel=xlabel, ylabel=ylabel, zlabel=zlabel  # 标题
         )
 
         fig.show()
@@ -239,23 +236,23 @@ def confusion_matrix_analysis(confusion_matrix):
     Args:
         confusion_matrix:
     Returns:
-        accuracy: 查准率\精度
-        recall: 查全率\召回率\真正例率
+        accuracy: 查准率/精度
+        recall: 查全率/召回率/真正例率
         false_positive_rate: 假正例率
     """
     from seaborn import heatmap
 
-    heatmap(confusion_matrix, annot=True)
-    plt.title("混淆矩阵热力图")
-    plt.show()
+    fig, ax = plt.subplots(1, 2)
+    subplot1 = heatmap(confusion_matrix, annot=True, ax=ax[0])
+    subplot1.set_title("混淆矩阵热力图")
 
     row_sum = confusion_matrix.sum(axis=1, keepdims=True)
     col_sum = confusion_matrix.sum(axis=0, keepdims=True)
 
     norm_confusion_matrix = confusion_matrix / row_sum
     np.fill_diagonal(norm_confusion_matrix, 0)
-    heatmap(norm_confusion_matrix)
-    plt.title("错误率热力图")
+    subplot2 = heatmap(norm_confusion_matrix, ax=ax[1])
+    subplot2.set_title("错误率热力图")
     plt.show()
 
     true_positive = np.diagonal(confusion_matrix)
@@ -272,4 +269,3 @@ def confusion_matrix_analysis(confusion_matrix):
     print(f"真正例率(查全率/召回率)为\n{recall}\n")
     print(f"假正例率为\n{false_positive_rate}")
     return recall, accuracy, false_positive_rate
-
