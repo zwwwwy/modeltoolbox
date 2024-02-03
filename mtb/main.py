@@ -83,7 +83,8 @@ def acquire(*locks):
     finally:
         for lock in reversed(locks):
             lock.release()
-        del acquired[-len(locks) :]
+        lenth = len(locks)
+        del acquired[lenth:]
 
 
 cpu_nums = os.cpu_count()
@@ -231,14 +232,25 @@ def general_clf_report(predicted_data, label):
 def confusion_matrix_analysis(confusion_matrix):
     """confusion_matrix_analysis. 输出俩图，第一个图是混淆矩阵的热力图
     第二个图里面每一行是代表准确值，每一列代表预测值，所以每一个格子里的值代表某一准确值被预测为某错误的预测值的概率
-    返回accuracy, recall, false_positive_rate
+    返回precision, recall, false_positive_rate
 
     Args:
         confusion_matrix:
     Returns:
-        accuracy: 查准率/精度
+        precision: 查准率/精度
         recall: 查全率/召回率/真正例率
         false_positive_rate: 假正例率
+        f1_score: f1分数
+        accuracy: 准确率
+        macro_precision: 宏查准率
+        macro_recall: 宏查全率
+        macro_f1: 宏F1
+        micro_precision: 微查准率
+        micro_recall: 微查全率
+        micro_f1: 微F1
+        weighed_precision: 带权查准率
+        weighed_recall: 带权查全率
+        weighed_f1: 带权F1
     """
     from seaborn import heatmap
 
@@ -247,11 +259,15 @@ def confusion_matrix_analysis(confusion_matrix):
     subplot1.set_title("混淆矩阵热力图")
 
     row_sum = confusion_matrix.sum(axis=1, keepdims=True)
-    col_sum = confusion_matrix.sum(axis=0, keepdims=True)
+    col_sum = confusion_matrix.sum(axis=0, keepdims=True).ravel()
+    all_sum = confusion_matrix.sum()
 
     norm_confusion_matrix = confusion_matrix / row_sum
+    # 上面一行需要把每行的每一列除对应行的和，所以不能在最开始就降维（不然不同列就除的和就不一样了）
+    row_sum = row_sum.ravel()
+
     np.fill_diagonal(norm_confusion_matrix, 0)
-    subplot2 = heatmap(norm_confusion_matrix, ax=ax[1])
+    subplot2 = heatmap(norm_confusion_matrix, annot=True, ax=ax[1])
     subplot2.set_title("错误率热力图")
     plt.show()
 
@@ -261,11 +277,85 @@ def confusion_matrix_analysis(confusion_matrix):
         true_positive.sum() - true_positive[i] for i in range(len(true_positive))
     ]
 
-    recall = true_positive / row_sum.T
-    accuracy = true_positive / col_sum
+    recall = true_positive / row_sum
+    precision = true_positive / col_sum
     false_positive_rate = false_positive / (false_positive + true_negative)
+    accuracy = true_positive.sum() / all_sum
 
-    print(f"查准率(精度)为\n{accuracy}\n")
-    print(f"真正例率(查全率/召回率)为\n{recall}\n")
-    print(f"假正例率为\n{false_positive_rate}")
-    return recall, accuracy, false_positive_rate
+    f1_score = 2 / ((1 / precision) + (1 / recall))
+    print("{:-^45}".format("以下为各类的数量"))
+    print(f"实际数量：{row_sum}")
+    print(f"预测数量：{col_sum}")
+    print("{:-^45}".format("以下为以各类分别作为正例时的各项指标"))
+
+    print(f"查准率(精度)为\n{precision}\n")
+    print(f"查全率(真正例率/召回率)为\n{recall}\n")
+    print(f"假正例率为\n{false_positive_rate}\n")
+    print(f"F1分数为\n{f1_score}\n")
+    print(f"准确率为\n{accuracy}\n")
+
+    print("{:-^45}".format("以下为综合指标"))
+    macro_precision = sum(precision) / len(precision)
+    macro_recall = sum(recall) / len(recall)
+    macro_f1 = (2 * macro_precision * macro_recall) / (macro_precision + macro_recall)
+
+    micro_precision = sum(true_positive) / (sum(true_positive) + sum(false_positive))
+    micro_recall = sum(true_positive) / sum(row_sum)
+    micro_f1 = (2 * micro_precision * micro_recall) / (micro_precision + micro_recall)
+
+    weigh = np.array([row_sum / all_sum]).ravel()
+    weighed_precision = sum(weigh * precision)
+    weighed_recall = sum(weigh * recall)
+    weighed_f1 = (2 * weighed_precision * weighed_recall) / (
+        weighed_precision + weighed_recall
+    )
+    print(f"宏查准率为                      {macro_precision}")
+    print(f"宏查全率为                      {macro_recall}")
+    print(f"宏F1为                          {macro_f1}\n")
+    print(f"微查准率为                      {micro_precision}")
+    print(f"微查全率为                      {micro_recall}")
+    print(f"微F1为                          {micro_f1}\n")
+    print(f"加权查准率为                    {weighed_precision}")
+    print(f"加权查全率为                    {weighed_recall}")
+    print(f"加权F1为                        {weighed_f1}")
+
+    return (
+        precision,
+        recall,
+        false_positive_rate,
+        f1_score,
+        accuracy,
+        macro_precision,
+        macro_recall,
+        macro_f1,
+        micro_precision,
+        micro_recall,
+        micro_f1,
+        weighed_precision,
+        weighed_recall,
+        weighed_f1,
+    )
+
+
+conf_mx = np.array(
+    [
+        [85, 20],
+        [15, 280],
+    ]
+)
+(
+    precision,
+    recall,
+    false_positive_rate,
+    f1_score,
+    accuracy,
+    macro_precision,
+    macro_recall,
+    macro_f1,
+    micro_precision,
+    micro_recall,
+    micro_f1,
+    weighed_precision,
+    weighed_recall,
+    weighed_f1,
+) = confusion_matrix_analysis(conf_mx)

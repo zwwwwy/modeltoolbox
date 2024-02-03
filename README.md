@@ -1,4 +1,5 @@
 # modeltoolbox
+啊啊啊啊啊我吐了，写了一晚上评价混淆矩阵的函数，写完以后才发现sklearn有这个函数...我不管了我就要用我的，我写的功能也比他多...啊啊啊啊  
 最近发现这玩意导包的速度实在是太慢了，居然有四秒，正好跟matlab无关的函数写的越来越多了，把代
 码重写一遍，顺便改个名字。  
 省去无关文件后主程序目录树结构如下：  
@@ -139,25 +140,66 @@ sklearn_model_report(clv_SVM, train_X, train_Y)
 用法：  
 
 ```python
-conf_mx = [
-    [85,20],
-    [15,280]
-]
+conf_mx = np.array(
+    [
+        [85, 20],
+        [15, 280],
+    ]
+)
 
-precision, recall, FPR = mtb.confusion_matrix_analysis(conf_mx)
+(
+    precision,
+    recall,
+    false_positive_rate,
+    f1_score,
+    accuracy,
+    macro_precision,
+    macro_recall,
+    macro_f1,
+    micro_precision,
+    micro_recall,
+    micro_f1,
+    weighed_precision,
+    weighed_recall,
+    weighed_f1,
+) = confusion_matrix_analysis(conf_mx)
 ```
 这个函数会输出两个图像，第一个是用混淆矩阵绘制的热力图，可以看到混淆矩阵的各项数值大小。第二个图像是错误率图像，这个图像是用混淆矩阵中每个元素分别除以对应行的和（实际为某类的数量），这个值的意义，举个例子，就是在所有的8中，错误的被预测为1，2，3...等其他类的分别的比率。因为第二个图像是研究错误率，所以把该图片对角线上的元素（预测正确的）都填充为0  
 在输出两个图像以后，本函数还会计算混淆矩阵的各个参数，然后一次输出并返回这些参数，比如上面用法的输出如下：  
 
 ```txt
+-----------------以下为各类的实际数量------------------
+实际数量：[105 295]
+预测数量：[100 300]
+-------------以下为以各类分别作为正例时的各项指标--------------
 查准率(精度)为
-[[0.85       0.93333333]]
+[0.85       0.93333333]
 
-真正例率(查全率/召回率)为
-[[0.80952381 0.94915254]]
+查全率(真正例率/召回率)为
+[0.80952381 0.94915254]
 
 假正例率为
-[[0.05084746 0.19047619]]
+[0.05084746 0.19047619]
+
+F1分数为
+[0.82926829 0.94117647]
+
+准确率为
+0.9125
+
+-------------------以下为综合指标-------------------
+宏查准率为                      0.8916666666666666
+宏查全率为                      0.8793381759483454
+宏F1为                          0.8854595101647088
+
+微查准率为                      0.9125
+微查全率为                      0.9125
+微F1为                          0.9125
+
+加权查准率为                    0.9114583333333334
+加权查全率为                    0.9125000000000001
+加权F1为                        0.9119788692175899
+
 ```
 
 结合混淆矩阵的结构  
@@ -167,12 +209,28 @@ precision, recall, FPR = mtb.confusion_matrix_analysis(conf_mx)
 | Actual Negative  | FP (False Positives)| TN (True Negatives)|
 
 注意到这里输出的各项参数均为两个，而常见的参数分析只有一个，这两个值的意义是，第一个值表示把第一类作为正例，其他类作为反类计算的结果，第二个表示把第二个视作正类，其他类视作反类的计算结果，以此类推。  
-附上上面三个参数的计算公式:  
+附上上面几个参数的计算公式:  
 $Precision = \frac{TP}{TP+FP}$  
   
 $Recall = \frac{TP}{TP+FN}$  
   
 $FPR = \frac{FP}{FP+TN}$  
+  
+$F1=\frac{2\cdot P\cdot R}{P+R}$  
+  
+$macro\_P=\frac1n\sum\limits^n_{i=1}P_i$  
+  
+$macro\_R=\frac1n\sum\limits^n_{i=1}R_i$  
+  
+$macro\_F1=\frac{2\cdot macro\_P\cdot macro\_R}{macro\_P+macro\_R}$  
+  
+$micro\_P=\frac{\overline{TP}}{\overline{TP}+\overline{FP}}$  
+  
+$micro\_R=\frac{\overline{TP}}{\overline{TP}+\overline{FN}}$  
+  
+$micro\_F1=\frac{2\cdot micro\_P\cdot micro\_R}{micro\_P+micro\_R}$  
+
+权重的式子就是把各个P啊R啊加权求和（权重就是各类实际数量占总样本数的比值）
 
 
 ## mathon
