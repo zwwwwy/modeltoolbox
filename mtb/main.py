@@ -335,27 +335,3 @@ def confusion_matrix_analysis(confusion_matrix):
         weighed_recall,
         weighed_f1,
     )
-
-
-conf_mx = np.array(
-    [
-        [85, 20],
-        [15, 280],
-    ]
-)
-(
-    precision,
-    recall,
-    false_positive_rate,
-    f1_score,
-    accuracy,
-    macro_precision,
-    macro_recall,
-    macro_f1,
-    micro_precision,
-    micro_recall,
-    micro_f1,
-    weighed_precision,
-    weighed_recall,
-    weighed_f1,
-) = confusion_matrix_analysis(conf_mx)
