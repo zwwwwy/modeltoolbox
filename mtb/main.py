@@ -335,3 +335,24 @@ def confusion_matrix_analysis(confusion_matrix):
         weighed_recall,
         weighed_f1,
     )
+
+
+def learning_curve(model, x, y):
+    from sklearn.metrics import mean_squared_error
+    from sklearn.model_selection import train_test_split
+
+    train_x, test_x, train_y, test_y = train_test_split(x, y, test_size=0.2)
+    train_errors, test_errors = [], []
+    for m in range(1, len(train_x)):
+        model.fit(train_x[:m], train_y[:m])
+        train_y_predict = model.predict(train_x[:m])
+        test_y_predict = model.predict(test_x)
+        train_errors.append(mean_squared_error(train_y[:m], train_y_predict))
+        test_errors.append(mean_squared_error(test_y, test_y_predict))
+    plt.plot(np.sqrt(train_errors), label="训练集")
+    plt.plot(np.sqrt(test_errors), "-+", label="测试集")
+    plt.xlabel("训练集大小")
+    plt.ylabel("误差(RMSE)")
+    plt.title("学习曲线")
+    plt.legend()
+    plt.show()
