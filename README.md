@@ -1,4 +1,5 @@
 # modeltoolbox
+本库的主模块使用import mtb导入  
 啊啊啊啊啊我吐了，写了一晚上评价混淆矩阵的函数，写完以后才发现sklearn有这个函数...我不管了我就要用我的，我写的功能也比他多...啊啊啊啊  
 最近发现这玩意导包的速度实在是太慢了，居然有四秒，正好跟matlab无关的函数写的越来越多了，把代
 码重写一遍，顺便改个名字。  
@@ -7,7 +8,7 @@
 ```txt
 .
 ├── LICENSE.md
-├── modeltoolbox
+├── mtb
 │   ├── __init__.py
 │   ├── main.py
 │   ├── mathon
@@ -26,7 +27,7 @@ mathon.py里，目前对sns之类的库的处理是在函数体里面导入，�
 后期如果这些依赖用的足够多的话，就像matlab一样也单独成一个模块。  
   
 也是为了提高导入速度，init.py中没有直接导入模块，所以如果要用到mathon和tools模块，只能通过
-`import modeltoolbox.mathon as mmp`的方法导入。
+`import mtb.mathon as mmp`的方法导入。
   
 `main`：主模块的函数  
 `mathon`：原mathon中matlab相关函数的模块  
