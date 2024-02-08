@@ -311,13 +311,13 @@ def confusion_matrix_analysis(confusion_matrix, title1="混淆矩阵热力图", 
     )
     print(f"宏查准率为                      {macro_precision}")
     print(f"宏查全率为                      {macro_recall}")
-    print(f"宏F1为                          {macro_f1}\n")
+    print(f"宏F1为                         {macro_f1}\n")
     print(f"微查准率为                      {micro_precision}")
     print(f"微查全率为                      {micro_recall}")
-    print(f"微F1为                          {micro_f1}\n")
+    print(f"微F1为                         {micro_f1}\n")
     print(f"加权查准率为                    {weighed_precision}")
     print(f"加权查全率为                    {weighed_recall}")
-    print(f"加权F1为                        {weighed_f1}")
+    print(f"加权F1为                       {weighed_f1}")
 
     return (
         precision,
