@@ -229,7 +229,7 @@ def general_clf_report(predicted_data, label):
         ...
 
 
-def confusion_matrix_analysis(confusion_matrix):
+def confusion_matrix_analysis(confusion_matrix, title1="混淆矩阵热力图", title2="错误率热力图"):
     """confusion_matrix_analysis. 输出俩图，第一个图是混淆矩阵的热力图
     第二个图里面每一行是代表准确值，每一列代表预测值，所以每一个格子里的值代表某一准确值被预测为某错误的预测值的概率
     返回precision, recall, false_positive_rate
@@ -256,7 +256,7 @@ def confusion_matrix_analysis(confusion_matrix):
 
     fig, ax = plt.subplots(1, 2)
     subplot1 = heatmap(confusion_matrix, annot=True, ax=ax[0])
-    subplot1.set_title("混淆矩阵热力图")
+    subplot1.set_title(title1)
 
     row_sum = confusion_matrix.sum(axis=1, keepdims=True)
     col_sum = confusion_matrix.sum(axis=0, keepdims=True).ravel()
@@ -268,7 +268,7 @@ def confusion_matrix_analysis(confusion_matrix):
 
     np.fill_diagonal(norm_confusion_matrix, 0)
     subplot2 = heatmap(norm_confusion_matrix, annot=True, ax=ax[1])
-    subplot2.set_title("错误率热力图")
+    subplot2.set_title(title2)
     plt.show()
 
     true_positive = np.diagonal(confusion_matrix)
@@ -337,7 +337,17 @@ def confusion_matrix_analysis(confusion_matrix):
     )
 
 
-def learning_curve(model, x, y):
+def learning_curve(model, x, y, title="学习曲线"):
+    """learning_curve. 简单的学习曲线函数，sklearn的函数具体还不知道是个什么情况
+
+    Args:
+        model: 未训练好的模型
+        x:
+        y:
+        title:
+    Returns:
+        model: 训练好的模型
+    """
     from sklearn.metrics import mean_squared_error
     from sklearn.model_selection import train_test_split
 
@@ -353,6 +363,7 @@ def learning_curve(model, x, y):
     plt.plot(np.sqrt(test_errors), "-+", label="测试集")
     plt.xlabel("训练集大小")
     plt.ylabel("误差(RMSE)")
-    plt.title("学习曲线")
+    plt.title(title)
     plt.legend()
     plt.show()
+    return model
