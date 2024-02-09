@@ -8,5 +8,6 @@ from .main import (
     fast_corrscatter_evaluate,
     sklearn_model_report,
     general_clf_report,
-    confusion_matrix_analysis
+    confusion_matrix_analysis,
+    learning_curve
 )

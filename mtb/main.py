@@ -283,18 +283,7 @@ def confusion_matrix_analysis(confusion_matrix, title1="混淆矩阵热力图", 
     accuracy = true_positive.sum() / all_sum
 
     f1_score = 2 / ((1 / precision) + (1 / recall))
-    print("{:-^45}".format("以下为各类的数量"))
-    print(f"实际数量：{row_sum}")
-    print(f"预测数量：{col_sum}")
-    print("{:-^45}".format("以下为以各类分别作为正例时的各项指标"))
 
-    print(f"查准率(精度)为\n{precision}\n")
-    print(f"查全率(真正例率/召回率)为\n{recall}\n")
-    print(f"假正例率为\n{false_positive_rate}\n")
-    print(f"F1分数为\n{f1_score}\n")
-    print(f"准确率为\n{accuracy}\n")
-
-    print("{:-^45}".format("以下为综合指标"))
     macro_precision = sum(precision) / len(precision)
     macro_recall = sum(recall) / len(recall)
     macro_f1 = (2 * macro_precision * macro_recall) / (macro_precision + macro_recall)
@@ -309,15 +298,27 @@ def confusion_matrix_analysis(confusion_matrix, title1="混淆矩阵热力图", 
     weighed_f1 = (2 * weighed_precision * weighed_recall) / (
         weighed_precision + weighed_recall
     )
+    print("{:-^45}".format("以下为各类的数量"))
+    print(f"实际数量：{row_sum}")
+    print(f"预测数量：{col_sum}")
+
+    print("{:-^45}".format("以下为以各类分别作为正例时的各项指标"))
+    print(f"查准率(精度)为\n{precision}\n")
+    print(f"查全率(真正例率/召回率)为\n{recall}\n")
+    print(f"假正例率为\n{false_positive_rate}\n")
+    print(f"F1分数为\n{f1_score}\n")
+    print(f"准确率为\n{accuracy}\n")
+
+    print("{:-^45}".format("以下为综合指标"))
     print(f"宏查准率为                      {macro_precision}")
     print(f"宏查全率为                      {macro_recall}")
-    print(f"宏F1为                         {macro_f1}\n")
+    print(f"宏F1为                          {macro_f1}\n")
     print(f"微查准率为                      {micro_precision}")
     print(f"微查全率为                      {micro_recall}")
-    print(f"微F1为                         {micro_f1}\n")
+    print(f"微F1为                          {micro_f1}\n")
     print(f"加权查准率为                    {weighed_precision}")
     print(f"加权查全率为                    {weighed_recall}")
-    print(f"加权F1为                       {weighed_f1}")
+    print(f"加权F1为                        {weighed_f1}")
 
     return (
         precision,
@@ -359,11 +360,20 @@ def learning_curve(model, x, y, title="学习曲线"):
         test_y_predict = model.predict(test_x)
         train_errors.append(mean_squared_error(train_y[:m], train_y_predict))
         test_errors.append(mean_squared_error(test_y, test_y_predict))
-    plt.plot(np.sqrt(train_errors), label="训练集")
-    plt.plot(np.sqrt(test_errors), "-+", label="测试集")
+    RMSE_train = np.sqrt(train_errors)
+    RMSE_test = np.sqrt(test_errors)
+    plt.plot(RMSE_train, label="训练集")
+    plt.plot(RMSE_test, "-+", label="测试集")
     plt.xlabel("训练集大小")
     plt.ylabel("误差(RMSE)")
     plt.title(title)
     plt.legend()
     plt.show()
+    if len(test_errors) >= 10:
+        delta = np.abs(RMSE_train[:-10] - RMSE_test[:-10])
+        delta = 0.5 * delta / (RMSE_train[:-10] + RMSE_test[:-10])
+        if delta <= 0.01:
+            print("结果不一定好，注意一下误差，可能会过拟合")
+        else:
+            print(f"训练集和测试集的误差相差{delta*100}%, 可能是欠拟合")
     return model
