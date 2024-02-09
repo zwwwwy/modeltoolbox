@@ -370,10 +370,11 @@ def learning_curve(model, x, y, title="学习曲线"):
     plt.legend()
     plt.show()
     if len(test_errors) >= 10:
-        delta = np.abs(RMSE_train[:-10] - RMSE_test[:-10])
-        delta = 0.5 * delta / (RMSE_train[:-10] + RMSE_test[:-10])
-        if delta <= 0.01:
-            print("结果不一定好，注意一下误差，可能会过拟合")
+        delta = np.abs(RMSE_train[-10:] - RMSE_test[-10:])
+        delta = 2 * delta / (RMSE_train[-10:] + RMSE_test[-10:])
+        delta = delta.mean()
+        if delta <= 0.1:
+            print(f"训练集和测试集的误差相差{delta*100}%, 结果不一定好，注意一下误差，可能会过拟合")
         else:
             print(f"训练集和测试集的误差相差{delta*100}%, 可能是欠拟合")
     return model
