@@ -29,6 +29,8 @@ def prefer_settings():
     # plt.rcParams['font.sans-serif'] = ['SimHei']
     plt.rcParams['axes.unicode_minus'] = False
     pd.set_option('display.max_columns', None)
+    pd.set_option('display.unicode.ambiguous_as_wide', True)
+    pd.set_option('display.unicode.east_asian_width', True)
 
 
 def jiecheng(x):

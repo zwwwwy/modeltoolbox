@@ -3,6 +3,7 @@ import threading
 from contextlib import contextmanager
 import multiprocessing
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
@@ -378,3 +379,112 @@ def learning_curve(model, x, y, title="学习曲线"):
         else:
             print(f"训练集和测试集的误差相差{delta*100}%, 可能是欠拟合")
     return model
+
+
+class Grey_model_11:
+    def __init__(self):
+        self.c = 0
+        self.level = np.array([])
+        print("{:-^55}".format("以下为各项指标"))
+
+    def fit(self, x):
+        """fit. 这个函数进行级比检验，为了跟sklearn习惯接轨，所以叫fit了。
+        这个平移的c求得比较玄学，我不知道为什么这么取，但是管用。
+        c是每次递归时（递归的同时x自加c）累加x的最小值。
+
+        Args:
+            x: 仅接收列表和一维np数组，目前不想导入pd库
+        """
+        if isinstance(x, list):
+            self.x = np.array(x)
+        elif isinstance(x, np.ndarray):
+            self.x = x
+        elif isinstance(x, pd.Series):
+            self.x = x.values
+        self.level = self.x[:-1] / self.x[1:]
+        lenth = len(self.x)
+        if self.level.min() >= np.exp(-2 / (lenth + 1)) and self.level.max() <= np.exp(
+            2 / (lenth + 2)
+        ):
+            print(f"级比检验完成，符合要求，平移了{self.c}，即c = {self.c}\n")
+        else:
+            self.c += self.x.min()
+            self.x += self.x.min()
+            self.fit(self.x)
+
+    def predict(self, n):
+        """predict. 返回预测的结果
+
+        Args:
+            n: 想要预测的个数
+        """
+        X = []
+        tmp = 0
+        for i in self.x:
+            tmp += i
+            X.append(tmp)
+        X = np.array(X)
+        Z = -0.5 * (X[1:] + X[:-1])
+        Y = self.x[1:].T
+        B = np.c_[Z.T, np.ones(len(Z)).T]
+        result = np.linalg.inv((B.T.dot(B))).dot(B.T).dot(Y)
+        a = result[0]
+        b = result[1]
+        print(f"发展系数a = {a}\n灰作用量b = {b}\n")
+
+        predict_X = []
+
+        for i in range(len(X) + n):
+            predict_X.append((self.x[0] - b / a) * np.exp(-a * i) + b / a)
+        predict_X = np.array(predict_X)
+        verfify = predict_X[: len(X)].copy()
+        predict = predict_X[len(X) - 1 :].copy()
+        verfify_x0 = verfify[1:] - verfify[:-1] - self.c
+        predict_x0 = predict[1:] - predict[:-1] - self.c
+
+        print("{:-^55}".format("以下为检验报告"))
+
+        delta = np.abs(self.x[1:] - self.c - verfify_x0) / (self.x[1:] - self.c)
+        delta = np.r_[0, delta]
+        if np.array(delta < 0.1).all():
+            print("相对误差检验达到了较高的要求")
+        elif np.array(delta < 0.2).all():
+            print("相对误差检验达到了一般的要求")
+        else:
+            print("相对误差检验不合格")
+
+        rho = 1 - ((1 - 0.5 * a) / (1 + 0.5 * a)) * self.level
+        if np.array(np.abs(rho) < 0.1).all():
+            print("级比偏差检验达到了较高的要求")
+        elif np.array(np.abs(rho) < 0.2).all():
+            print("级比偏差检验达到了一般的要求")
+        else:
+            print("级比偏差检验不合格")
+
+        print_verfify_x0 = np.r_[self.x[0] - self.c, verfify_x0]
+
+        report = pd.DataFrame()
+        report["序号"] = np.arange(1, len(self.x) + 1)
+        report["原始值"] = self.x - self.c
+        report["预测值"] = print_verfify_x0
+        report["残差"] = self.x - self.c - print_verfify_x0
+        report["相对误差"] = delta
+        report["级比偏差"] = np.r_[np.nan, rho]
+        report.set_index("序号", inplace=True)
+        self.report = report
+
+        print()
+        print(report)
+
+        print("{:-^55}".format("以下为预测结果"))
+        result = pd.DataFrame()
+        result["预测结果"] = predict_x0
+        result["序号"] = np.arange(len(self.x) + 1, len(self.x) + 1 + n)
+        result.set_index("序号", inplace=True)
+        print(result)
+
+        return predict_x0
+
+    def get_report(self):
+        """get_report. 返回检验报告"""
+        return self.report
