@@ -233,20 +233,21 @@ $micro\_F1=\frac{2\cdot micro\_P\cdot micro\_R}{micro\_P+micro\_R}$
 
 权重的式子就是把各个P啊R啊加权求和（权重就是各类实际数量占总样本数的比值）
 
-### `Grey_model11`
+### `Grey_model_11`
 这是一个类，他是GM(1,1)模型，有fit、predict和get_report三个方法（不含初始化）  
-#### `Grey_model11.fit(self, x)`
+#### `Grey_model_11.fit(self, x)`
 叫这个名字是为了符合sklearn的习惯，本方法接收待预测的序列
-#### `Grey_model11.predict(self, n)`
+#### `Grey_model_11.predict(self, n)`
 本方法接收想要预测的个数，并自动进行结果检验并输出报告，返回预测结果(np.array)
-#### `Grey_model11.get_report(self)`
+#### `Grey_model_11.get_report(self)`
 本方法无参数，直接返回检验报告(pd.DataFrame)  
   
-用法: 
+用法:   
+这里用的例子是司守奎的数学建模算法与应用(matlab)的（数学式子也是）
 
 ```python
-gm11_pred = mtb.Grey_model11()
-gm11_pred.fit([71.1, 72.4, 72.2, 72.1, 71.4, 72.0, 71.6])
+gm11_pred = mtb.Grey_model_11()
+gm11_pred.fit([71.1, 72.4, 72.4, 72.1, 71.4, 72.0, 71.6])
 result = gm11_pred.predict(5)
 ```
 

@@ -406,7 +406,7 @@ class Grey_model_11:
         if self.level.min() >= np.exp(-2 / (lenth + 1)) and self.level.max() <= np.exp(
             2 / (lenth + 2)
         ):
-            print(f"级比检验完成，符合要求，平移了{self.c}，即c = {self.c}\n")
+            print(f"级比检验完成，符合要求，平移了{self.c}，即c = {self.c}")
         else:
             self.c += self.x.min()
             self.x += self.x.min()
