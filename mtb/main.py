@@ -1,13 +1,10 @@
 import os
-import threading
-from contextlib import contextmanager
 import multiprocessing
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
-_local = threading.local()
 counts = 1
 
 
@@ -58,34 +55,6 @@ def SavePreview_plt_fig(*args, **kwargs):
     save_plt_fig(*args, **kwargs)
     if track == 1:
         plt.close()
-
-
-@contextmanager
-def acquire(*locks):
-    """acquire.
-    这个是抄的网上的锁管理器
-
-    Args:
-        locks:
-    """
-    locks = sorted(locks, key=lambda x: id(x))
-
-    acquired = getattr(_local, "acquired", [])
-    if acquired and max(id(lock) for lock in acquired) >= id(locks[0]):
-        raise RuntimeError("Lock Order Violation")
-
-    acquired.extend(locks)
-    _local.acquired = acquired
-
-    try:
-        for lock in locks:
-            lock.acquire()
-        yield
-    finally:
-        for lock in reversed(locks):
-            lock.release()
-        lenth = len(locks)
-        del acquired[lenth:]
 
 
 cpu_nums = os.cpu_count()

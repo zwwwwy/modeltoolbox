@@ -467,9 +467,10 @@ mp.plot_gpu()函数里面to_matlab_gpu()的调用里，给后者传入args的参
 妈的我这个函数是直接搬的mp.plot()为什么那个函数不用解包这个函数就得解包？？？？？？？？？？？？？<br/>
 离谱<br/>
 args确实是元组而且确实长度为2<br/>
-<br/>
-<br/>
-优化mesh_multiprocessing函数，具体的优化方向上面写了
+  
+  
+DGM_21, grey_model_21跟Markov_predict这仨个玩意写的太屎了，回头心情好的时候重写一遍，现在实在太困了
+
 
 ## 依赖
 暂时先写在这里（含内建库）：  
