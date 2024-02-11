@@ -435,6 +435,8 @@ class Grey_model_11:
         result = np.linalg.inv((self.B.T.dot(self.B))).dot(self.B.T).dot(self.Y)
         a = result[0]
         b = result[1]
+        self.a = a
+        self.b = b
         print(f"发展系数a = {a}\n灰作用量b = {b}\n")
 
         predict_x1 = []
@@ -536,4 +538,118 @@ def grey_model_21(x):
         print(f"x''[t] + {a1} * x'[t] + {a2}* x[t] == {b}")
 
 
-grey_model_21([41, 49, 61, 78, 96, 104])
+class DGM_21:
+    def __init__(self):
+        self.a = 0
+        self.b = 0
+        self.B = np.array([])
+        self.Y = np.array([])
+        self.u = np.array([])
+        self.x = np.array([])
+        self.x1 = np.array([])
+        self.a1x0 = np.array([])
+
+    def fit(self, x):
+        if isinstance(x, list):
+            self.x = np.array(x)
+        elif isinstance(x, np.ndarray):
+            self.x = x
+        elif isinstance(x, pd.Series):
+            self.x = x.values
+
+    def predict(self, n):
+        self.x1 = []
+        tmp = 0
+        for i in self.x:
+            tmp += i
+            self.x1.append(tmp)
+        self.x1 = np.array(self.x1)
+
+        self.a1x0 = self.x[1:] - self.x[:-1]
+
+        self.B = np.c_[-self.x[1:].T, np.ones(len(self.x) - 1)]
+        self.Y = self.a1x0.T
+        self.u = np.linalg.inv(self.B.T.dot(self.B)).dot(self.B.T).dot(self.Y)
+
+        a = self.u[0]
+        b = self.u[1]
+        self.a = a
+        self.b = b
+
+        predict = [self.x1[0]]
+        for t in range(1, len(self.x) + n):
+            predict.append(
+                (b / a**2 - self.x[0] / a) * np.exp(-a * t)
+                + b * t / a
+                + (1 + a) * self.x[0] / a
+                - b / a**2
+            )
+
+        predict = np.array(predict)
+        predict_x0 = predict[1:] - predict[:-1]
+        predict_x0 = np.r_[predict[0], predict_x0]
+        self.verfify = predict_x0[:-n]
+        self.predict_x0 = predict_x0[-n:]
+
+        residual = self.x - self.verfify
+        delta = np.abs(residual) / (self.x)
+        self.report = pd.DataFrame()
+        self.report["序号"] = np.arange(1, len(self.x) + 1)
+        self.report["原始值"] = self.x
+        self.report["预测值"] = self.verfify
+        self.report["残差"] = residual
+        self.report["相对误差"] = delta
+        self.report.set_index("序号", inplace=True)
+
+        print("{:-^55}".format("以下为检测报告"))
+        print(self.report)
+
+        print("{:-^55}".format("以下为预测结果"))
+        print(self.predict_x0)
+
+    def get_report(self):
+        return self.report
+
+
+class Markov_predict:
+    def __init__(self):
+        self.p1 = pd.DataFrame()
+
+    def fit(self, x):
+        judger = 1
+        if isinstance(x, list):
+            if isinstance(x[0], str):
+                self.x = ""
+                for i in x:
+                    self.x += i
+                judger = 1
+            self.x = np.array(x).flatten()
+        elif isinstance(x, np.ndarray):
+            self.x = x.flatten()
+        elif isinstance(x, pd.Series):
+            self.x = x.values.flatten()
+        elif isinstance(x, str):
+            self.x = x
+            judger = 0
+
+        if judger == 1:
+            self.x = "".join(map(str, self.x))
+            self.x = self.x.replace(" ", "")
+
+        unique = sorted(list(set(self.x)))
+        self.p1 = pd.DataFrame(
+            np.zeros((len(unique), len(unique))), index=unique, columns=unique
+        )
+
+        for i in range(len(self.x) - 1):
+            self.p1.loc[self.x[i], self.x[i + 1]] += 1
+        self.p1 = self.p1 / self.p1.to_numpy().sum(axis=1, keepdims=True)
+
+        print("一步状态转移矩阵的估计如下")
+        print(self.p1)
+
+    def martix(self, n):
+        self.result_lst = []
+        result = self.p1 if n == 1 else self.p1.dot(self.martix(n - 1))
+        self.result_lst.append(result)
+        return self.result_lst[-1]

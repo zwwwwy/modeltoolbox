@@ -9,14 +9,16 @@
 .
 ├── LICENSE.md
 ├── mtb
-│   ├── __init__.py
-│   ├── main.py
-│   ├── mathon
-│   │   ├── __init__.py
-│   │   └── main.py
-│   └── tools
-│       ├── __init__.py
-│       └── main.py
+│   ├── __init__.py
+│   ├── main.py
+│   ├── mathon
+│   │   ├── __init__.py
+│   │   └── main.py
+│   ├── tools
+│   │   ├── __init__.py
+│   │   └── main.py
+│   └── uncomplete
+│       └── uncomplete.py
 ├── README.md
 ├── setup.py
 └── share_engine.m
@@ -25,13 +27,14 @@
 因为matlab那个包和sns、sklearn的导入速度太慢，所以把软件全都模块化了，跟matlab有关的全放在
 mathon.py里，目前对sns之类的库的处理是在函数体里面导入，缺点就是函数的加载变慢了，所以考虑
 后期如果这些依赖用的足够多的话，就像matlab一样也单独成一个模块。  
-  
+
 也是为了提高导入速度，init.py中没有直接导入模块，所以如果要用到mathon和tools模块，只能通过
-`import mtb.mathon as mmp`的方法导入。
-  
+`import mtb.mathon as mp`的方法导入。
+
 `main`：主模块的函数  
 `mathon`：原mathon中matlab相关函数的模块  
 `tools`：主要是一些附加的数学函数和设置相关的模块
+`uncomplete`：未完成
 
 ## main
 以下是目前本模块所有函数的简介
@@ -51,9 +54,9 @@ save_plt_fig(path='./pic, hold='off)
 ### `grid_caculator_multiprocessing(x, y, calculator, title='pic', xlabel='x', ylabel='y', zlabel='z',n_jobs=None,draw_pic=True):`
 这里只是把mathon中的本函数和matlab有关的功能去掉以后照搬过来的，还没有作进一步的优化（下次一定）  
 本函数用作并行计算复杂的图像，支持简单的字符串格式的简单函数关系，也支持复杂逻辑的运算<br/>
-  
+
 函数返回计算后的函数值，需要画图的话还需要提供x和y（可能还需要网格化），绘图的选项现在还没写，具体方法参考下面mathon中的内容。
-  
+
 n_jobs是并行数，不指定的话默认是cpu最大逻辑核心数。mathon中的函数也有这个选项，忘写了，我也懒得加了哈哈。  
 用法这里放两个：<br/>首先是简单的函数关系的例子
 ```python
@@ -212,23 +215,23 @@ F1分数为
 注意到这里输出的各项参数均为两个，而常见的参数分析只有一个，这两个值的意义是，第一个值表示把第一类作为正例，其他类作为反类计算的结果，第二个表示把第二个视作正类，其他类视作反类的计算结果，以此类推。  
 附上上面几个参数的计算公式:  
 $Precision = \frac{TP}{TP+FP}$  
-  
+
 $Recall = \frac{TP}{TP+FN}$  
-  
+
 $FPR = \frac{FP}{FP+TN}$  
-  
+
 $F1=\frac{2\cdot P\cdot R}{P+R}$  
-  
+
 $macro\_P=\frac1n\sum\limits^n_{i=1}P_i$  
-  
+
 $macro\_R=\frac1n\sum\limits^n_{i=1}R_i$  
-  
+
 $macro\_F1=\frac{2\cdot macro\_P\cdot macro\_R}{macro\_P+macro\_R}$  
-  
+
 $micro\_P=\frac{\overline{TP}}{\overline{TP}+\overline{FP}}$  
-  
+
 $micro\_R=\frac{\overline{TP}}{\overline{TP}+\overline{FN}}$  
-  
+
 $micro\_F1=\frac{2\cdot micro\_P\cdot micro\_R}{micro\_P+micro\_R}$  
 
 权重的式子就是把各个P啊R啊加权求和（权重就是各类实际数量占总样本数的比值）
@@ -241,7 +244,7 @@ $micro\_F1=\frac{2\cdot micro\_P\cdot micro\_R}{micro\_P+micro\_R}$
 本方法接收想要预测的个数，并自动进行结果检验并输出报告，返回预测结果(np.array)
 #### `Grey_model_11.get_report(self)`
 本方法无参数，直接返回检验报告(pd.DataFrame)  
-  
+
 用法:   
 这里用的例子是司守奎的数学建模算法与应用(matlab)的（数学式子也是）
 
@@ -250,6 +253,36 @@ gm11_pred = mtb.Grey_model_11()
 gm11_pred.fit([71.1, 72.4, 72.4, 72.1, 71.4, 72.0, 71.6])
 result = gm11_pred.predict(5)
 ```
+
+### `grey_model_21`
+这里只写到把白化方程和所有参数求出的地方，具体求解白化方程的地方我放到uncomplete里回头再说了，我不会求解微分方程所以到时候放到mathematica手动解了。  
+用法不写了，参数就是所有数据的一行列表
+
+### `DGM_21`
+类，具体的形式跟上面GM(1,1)一样的，不写了
+
+### `Markov_predict`
+
+类，主要有俩方法，一个是fit一个是matrix
+
+用法: 
+
+```python
+m = Markov_predict()
+m.fit(
+    [
+        [4, 3, 2, 1, 4, 3, 1, 1, 2, 3],
+        [2, 1, 2, 3, 4, 4, 3, 3, 1, 1],
+        [1, 3, 3, 2, 1, 2, 2, 2, 4, 4],
+        [2, 3, 2, 3, 1, 1, 2, 4, 3, 1],
+    ]
+)
+print(m.martix(4))
+```
+
+fit是生成一步状态转移矩阵，matrix是接收参数n输出n步状态转移矩阵，懒得写太多了。
+
+注意一下我加了一个特殊属性是result_lst，是n步前的所有状态转移矩阵的列表，可以用`result_lst = m.result_lst`来获取
 
 ## mathon
 以下是目前本模块所有函数的简介
