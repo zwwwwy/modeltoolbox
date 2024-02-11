@@ -384,7 +384,12 @@ def learning_curve(model, x, y, title="学习曲线"):
 class Grey_model_11:
     def __init__(self):
         self.c = 0
-        self.level = np.array([])
+        self.level = np.array([])  # 级比
+        self.x1 = np.array([])  # 累加序列
+        self.Z = np.array([])  # Z序列
+        self.Y = np.array([])  # Y序列
+        self.B = np.array([])  # B矩阵
+        self.x = np.array([])  # 原始序列
         print("{:-^55}".format("以下为各项指标"))
 
     def fit(self, x):
@@ -418,27 +423,27 @@ class Grey_model_11:
         Args:
             n: 想要预测的个数
         """
-        X = []
+        self.x1 = []
         tmp = 0
         for i in self.x:
             tmp += i
-            X.append(tmp)
-        X = np.array(X)
-        Z = -0.5 * (X[1:] + X[:-1])
-        Y = self.x[1:].T
-        B = np.c_[Z.T, np.ones(len(Z)).T]
-        result = np.linalg.inv((B.T.dot(B))).dot(B.T).dot(Y)
+            self.x1.append(tmp)
+        self.x1 = np.array(self.x1)
+        self.Z = -0.5 * (self.x1[1:] + self.x1[:-1])
+        self.Y = self.x[1:].T
+        self.B = np.c_[self.Z.T, np.ones(len(self.Z)).T]
+        result = np.linalg.inv((self.B.T.dot(self.B))).dot(self.B.T).dot(self.Y)
         a = result[0]
         b = result[1]
         print(f"发展系数a = {a}\n灰作用量b = {b}\n")
 
-        predict_X = []
+        predict_x1 = []
 
-        for i in range(len(X) + n):
-            predict_X.append((self.x[0] - b / a) * np.exp(-a * i) + b / a)
-        predict_X = np.array(predict_X)
-        verfify = predict_X[: len(X)].copy()
-        predict = predict_X[len(X) - 1 :].copy()
+        for i in range(len(self.x1) + n):
+            predict_x1.append((self.x[0] - b / a) * np.exp(-a * i) + b / a)
+        predict_x1 = np.array(predict_x1)
+        verfify = predict_x1[: len(self.x1)].copy()
+        predict = predict_x1[len(self.x1) - 1 :].copy()
         verfify_x0 = verfify[1:] - verfify[:-1] - self.c
         predict_x0 = predict[1:] - predict[:-1] - self.c
 
@@ -482,9 +487,53 @@ class Grey_model_11:
         result["序号"] = np.arange(len(self.x) + 1, len(self.x) + 1 + n)
         result.set_index("序号", inplace=True)
         print(result)
-
+        self.Z = -self.Z
         return predict_x0
 
     def get_report(self):
         """get_report. 返回检验报告"""
         return self.report
+
+
+def grey_model_21(x):
+    if isinstance(x, list):
+        x = np.array(x)
+    elif isinstance(x, np.ndarray):
+        x = x
+    elif isinstance(x, pd.Series):
+        x = x.values
+
+    x1, a1x0 = [], []
+    tmp = 0
+    for i in x:
+        tmp += i
+        x1.append(tmp)
+    x1 = np.array(x1)
+
+    a1x0 = x[1:] - x[:-1]
+    Z = -0.5 * (x1[1:] + x1[:-1])
+
+    B = np.c_[-x[1:].T, Z.T, np.ones(len(Z)).T]
+    Y = a1x0.T
+    u = np.linalg.inv((B.T.dot(B))).dot(B.T).dot(Y)
+    a1 = u[0]
+    a2 = u[1]
+    b = u[2]
+    print(f"x0的1-AGO序列x1为{x1}")
+    print(f"x0的1-IAGO序列a1x0为{a1x0}")
+    print(f"均值生成序列为{x}")
+    print(f"B=\n{B}")
+    print(f"Y={Y}\n")
+    print("白化方程为（求解微分方程的时候可直接作为mathmetica的参数）：")
+    print("未提供边界条件")
+    if a1 < 0 and a2 < 0:
+        print(f"x''[t] - {-a1} * x'[t] - {-a2} * x[t] == {b}")
+    elif a1 < 0 and a2 > 0:
+        print(f"x''[t] - {-a1} * x'[t] + {a2} * x[t] == {b}")
+    elif a1 > 0 and a2 < 0:
+        print(f"x''[t] + {a1} * x'[t] - {-a2} * x[t] == {b}")
+    else:
+        print(f"x''[t] + {a1} * x'[t] + {a2}* x[t] == {b}")
+
+
+grey_model_21([41, 49, 61, 78, 96, 104])
