@@ -280,6 +280,20 @@ m.fit(
 print(m.martix(4))
 ```
 
+此外，如果已经知道一步转移矩阵，也可以不用fit方法，比如  
+
+```python
+m = Markov_predict()
+m.p1 = np.array(
+    [
+        [0.8, 0.1, 0.1],
+        [0.5, 0.1, 0.4],
+        [0.5, 0.3, 0.2],
+    ]
+)
+print(np.array([0.2, 0.4, 0.4]).dot(m.martix(3)))
+```
+
 fit是生成一步状态转移矩阵，matrix是接收参数n输出n步状态转移矩阵，懒得写太多了。
 
 注意一下我加了一个特殊属性是result_lst，是n步前的所有状态转移矩阵的列表，可以用`result_lst = m.result_lst`来获取

@@ -187,18 +187,6 @@ def sklearn_model_report(model, train_data, label, scoring="accuracy"):
         print(f"在给出的训练集上，本模型{scoring}指标的多次预测平均值为：{_train.mean()}")
 
 
-def general_clf_report(predicted_data, label):
-    from sklearn.metrics import confusion_matrix, classification_report
-
-    if not isinstance(predicted_data, list):
-        print("混淆矩阵如下")
-        print(confusion_matrix(label, predicted_data), "\n")
-        print("查全率查准率等各项指标如下：")
-        print(classification_report(label, predicted_data))
-    else:
-        ...
-
-
 def confusion_matrix_analysis(confusion_matrix, title1="混淆矩阵热力图", title2="错误率热力图"):
     """confusion_matrix_analysis. 输出俩图，第一个图是混淆矩阵的热力图
     第二个图里面每一行是代表准确值，每一列代表预测值，所以每一个格子里的值代表某一准确值被预测为某错误的预测值的概率
@@ -447,6 +435,7 @@ class Grey_model_11:
         report["相对误差"] = delta
         report["级比偏差"] = np.r_[np.nan, rho]
         report.set_index("序号", inplace=True)
+        report.loc["均值"] = report.mean(axis=0)
         self.report = report
 
         print()
@@ -569,6 +558,7 @@ class DGM_21:
         self.report["残差"] = residual
         self.report["相对误差"] = delta
         self.report.set_index("序号", inplace=True)
+        self.report.loc["均值"] = self.report.mean(axis=0)
 
         print("{:-^55}".format("以下为检测报告"))
         print(self.report)
@@ -619,6 +609,13 @@ class Markov_predict:
 
     def martix(self, n):
         self.result_lst = []
-        result = self.p1 if n == 1 else self.p1.dot(self.martix(n - 1))
-        self.result_lst.append(result)
-        return self.result_lst[-1]
+
+        def dot(n):
+            result = self.p1 if n == 1 else self.p1.dot(dot(n - 1))
+            self.result_lst.append(result)
+            return result
+
+        result = dot(n)
+        print(f"\n{n}步状态转移矩阵的估计如下：")
+        print(result)
+        return result
