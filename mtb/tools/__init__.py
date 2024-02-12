@@ -3,5 +3,6 @@ from .main import (
     prefer_settings,
     jiecheng,
     C,
-    A
+    A,
+    acquire
 )
