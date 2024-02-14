@@ -619,3 +619,76 @@ class Markov_predict:
         print(f"\n{n}步状态转移矩阵的估计如下：")
         print(result)
         return result
+
+
+class fast_universal_svm:
+    def __init__(self):
+        self.model = None
+        self.train_data = None
+        self.train_label = None
+
+    def fit(self, x, y, C, loss="hinge", degree=None, kernel=None, **kwargs):
+        self.train_data = x
+        self.train_label = y
+
+        from sklearn.pipeline import Pipeline
+        from sklearn.preprocessing import StandardScaler
+        from sklearn.svm import SVC, LinearSVC
+
+        if degree is None and kernel is None:
+            print(f"将进行普通线性SVM，C={C}，损失函数为{loss}")
+            self.model = Pipeline(
+                [
+                    ("标准化", StandardScaler()),
+                    ("线性SVM", LinearSVC(C=C, loss=loss, **kwargs)),
+                ]
+            )
+            print("训练完成")
+
+        elif degree is not None and (kernel is None or kernel == "poly"):
+            print(f"将进行多项式SVM，C={C}，损失函数为{loss}，多项式次数为{degree}")
+            self.model = Pipeline(
+                [
+                    ("标准化", StandardScaler()),
+                    ("多项式SVM", SVC(C=C, kernel="poly", degree=degree, **kwargs)),
+                ]
+            )
+            print("训练完成")
+
+        elif kernel == "rbf" and degree is None:
+            print(f"将进行高斯RBF核SVM，C={C}，损失函数为{loss}")
+            self.model = Pipeline(
+                [
+                    ("标准化", StandardScaler()),
+                    ("RBF核SVM", SVC(C=C, kernel="rbf", **kwargs)),
+                ]
+            )
+
+        else:
+            print("不支持的参数")
+
+        self.model.fit(self.train_data, self.train_label)
+        print("训练完成")
+        return self.model
+
+    def predict(self, x):
+        result = self.model.predict(x)
+        print(f"预测结果为: \n{result}")
+        return result
+
+    def get_report(self, test_data=None, test_label=None):
+        from sklearn.metrics import confusion_matrix
+
+        if test_data is None and test_label is None:
+            pred = self.model.predict(self.train_data)
+            conf = confusion_matrix(self.train_label, pred)
+            print("在训练集上的分析结果如下：\n")
+            result = confusion_matrix_analysis(conf)
+
+        else:
+            pred = self.model.predict(test_data)
+            conf = confusion_matrix(test_label, pred)
+            print("在测试集上的分析结果如下：\n")
+            result = confusion_matrix_analysis(conf)
+
+        return result

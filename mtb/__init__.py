@@ -11,5 +11,6 @@ from .main import (
     Grey_model_11,
     grey_model_21,
     DGM_21,
-    Markov_predict
+    Markov_predict,
+    fast_universal_svm
 )
