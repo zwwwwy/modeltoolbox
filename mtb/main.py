@@ -1,11 +1,10 @@
 import os
-import multiprocessing
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import plotly.graph_objects as go
 
-counts = 1
+# 这里先把plotly的go函数移除，等以后如果用这个接口多了再放到前面
+# 多进程库同上，seaborn导入太慢，所以不在全局域导入
 
 
 def preview(func):
@@ -16,23 +15,43 @@ def preview(func):
     return inner
 
 
-def save_plt_fig(path="./pypic", hold="off"):
-    """保存plt中的图片，按数字顺序为图片命名，默认保存到E:\\图片\\pypic，可手动指定保存路径（绝对路径！！）
-    另：程序默认画完一张图自动hold off，如需设置hold on需要给hold传入参数"on"
+# def save_plt_fig(path="./pypic", hold="off"):
+#     """保存plt中的图片，按数字顺序为图片命名，默认保存到E:\\图片\\pypic，可手动指定保存路径（绝对路径！！）
+#     另：程序默认画完一张图自动hold off，如需设置hold on需要给hold传入参数"on"
+#
+#     Args:
+#         path:
+#         hold:
+#     """
+#
+#     global counts
+#
+#     if not os.path.exists(path):
+#         os.mkdir(path)
+#     plt.savefig(f"{path}/{counts}.jpg")
+#     counts += 1
+#     if hold == "on":
+#         pass
+#     else:
+#         plt.close()
 
-    Args:
-        path:
-        hold:
-    """
-    global counts
-    if not os.path.exists(path):
-        os.mkdir(path)
-    plt.savefig(f"{path}/{counts}.jpg")
-    counts += 1
-    if hold == "on":
-        pass
-    else:
-        plt.close()
+
+class Save_plt_fig:
+    def __init__(self, path="./pypic", hold="off"):
+        self.path = path
+        self.hold = hold
+        self.counts = 1
+
+    def __call__(self):
+        if not os.path.exists(self.path):
+            os.mkdir(self.path)
+        print(self.counts)
+        plt.savefig(f"{self.path}/{self.counts}.jpg")
+        self.counts += 1
+        if self.hold == "on":
+            pass
+        else:
+            plt.close()
 
 
 @preview
@@ -84,6 +103,9 @@ def grid_caculator_multiprocessing(
         zlabel:
         n_jobs:并行数，默认为cpu核心数量
     """
+    import plotly.graph_objects as go
+    import multiprocessing
+
     global mpmesh_lsts, cpu_nums, mpmesh_x, mpmesh_y, mpmesh_caculator
     if n_jobs is None:
         n_jobs = cpu_nums
