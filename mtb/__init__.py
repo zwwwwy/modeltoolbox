@@ -1,6 +1,5 @@
 from .main import (
-    save_plt_fig,
-    SavePreview_plt_fig,
+    Save_plt_fig,
     grid_caculator_multiprocessing,
     change_col_dtype,
     corr_heatmap,

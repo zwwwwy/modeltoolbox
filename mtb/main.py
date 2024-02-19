@@ -7,36 +7,14 @@ import matplotlib.pyplot as plt
 # 多进程库同上，seaborn导入太慢，所以不在全局域导入
 
 
-def preview(func):
-    def inner(*args, **kwargs):
-        func(*args, **kwargs)
-        plt.show()
-
-    return inner
-
-
-# def save_plt_fig(path="./pypic", hold="off"):
-#     """保存plt中的图片，按数字顺序为图片命名，默认保存到E:\\图片\\pypic，可手动指定保存路径（绝对路径！！）
-#     另：程序默认画完一张图自动hold off，如需设置hold on需要给hold传入参数"on"
-#
-#     Args:
-#         path:
-#         hold:
-#     """
-#
-#     global counts
-#
-#     if not os.path.exists(path):
-#         os.mkdir(path)
-#     plt.savefig(f"{path}/{counts}.jpg")
-#     counts += 1
-#     if hold == "on":
-#         pass
-#     else:
-#         plt.close()
+cpu_nums = os.cpu_count()
 
 
 class Save_plt_fig:
+    """Save_plt_fig.保存plt中的图片，按数字顺序为图片命名，默认保存到E:\\图片\\pypic，可手动指定保存路径（绝对路径！！）
+     另：程序默认画完一张图自动hold off，如需设置hold on需要给hold传入参数"on"
+    """
+
     def __init__(self, path="./pypic", hold="off"):
         self.path = path
         self.hold = hold
@@ -52,31 +30,6 @@ class Save_plt_fig:
             pass
         else:
             plt.close()
-
-
-@preview
-def SavePreview_plt_fig(*args, **kwargs):
-    """SavePreview_plt_fig.
-    本函数所有参数都和save_plt_fig相同，详情参见前者
-    在save_plt_fig的基础上利用装饰器实现在保存后展示图片，plt的默认设置好像是执行plt.show()
-    以后自动hold=off，所以这里处理关键字hold没什么意义，在plt那里最后的结果都跟hold=off一样的，
-    但是写都写了，再说万一以后有别的解决办法呢？就不删了
-
-    Args:
-        args:
-        kwargs:
-    """
-    track = 1
-    if "hold" in kwargs.keys():
-        if kwargs["hold"] == "on":
-            track = 0
-        kwargs["hold"] = "on"
-    save_plt_fig(*args, **kwargs)
-    if track == 1:
-        plt.close()
-
-
-cpu_nums = os.cpu_count()
 
 
 def grid_caculator_multiprocessing(

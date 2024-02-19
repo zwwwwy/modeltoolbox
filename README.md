@@ -38,18 +38,20 @@ mathon.py里，目前对sns之类的库的处理是在函数体里面导入，�
 
 ## main
 以下是目前本模块所有函数的简介
-### `preview(func)`
-装饰器，用来运行plt.show()
 
-### `save_plt_fig(path, hold)`
+### `Save_plt_fig(path, hold)`
 保存图片的函数，默认放在当前文件目录下的pypic文件夹中，可以手动选定路径，保存的图片依照先后顺序按数字从小到大命名。默认画完当前图像后自动hold off，如果需要hold on，给hold传入'on'就可以了。<br/>
 用法：
 
 ```python
-save_plt_fig(path='./pic, hold='off)
+a = Save_plt_fig(path='./pic, hold='off)
+
+...(plt1)
+a()
+
+...(plt2)
+a()
 ```
-### `SavePreview_plt_fig():`
-跟上面的函数用法完全相同，保存以后会自动跳出函数图像的图像，我觉得这里没办法设置hold on，但是还是写了一个判断传入的hold是on还是off的功能。
 
 ### `grid_caculator_multiprocessing(x, y, calculator, title='pic', xlabel='x', ylabel='y', zlabel='z',n_jobs=None,draw_pic=True):`
 这里只是把mathon中的本函数和matlab有关的功能去掉以后照搬过来的，还没有作进一步的优化（下次一定）  
