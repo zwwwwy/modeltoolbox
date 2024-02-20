@@ -12,7 +12,7 @@ cpu_nums = os.cpu_count()
 
 class Save_plt_fig:
     """Save_plt_fig.保存plt中的图片，按数字顺序为图片命名，默认保存到E:\\图片\\pypic，可手动指定保存路径（绝对路径！！）
-     另：程序默认画完一张图自动hold off，如需设置hold on需要给hold传入参数"on"
+    另：程序默认画完一张图自动hold off，如需设置hold on需要给hold传入参数"on"
     """
 
     def __init__(self, path="./pypic", hold="off"):
@@ -667,3 +667,28 @@ class fast_universal_svm:
             result = confusion_matrix_analysis(conf)
 
         return result
+
+
+def evr_plot(data, cross_line_y=None, title="主成分方差贡献率图"):
+    """evr_plot. 画出主成分方差贡献率图, 返回累计可解是方差
+
+    Args:
+        data:
+        title:
+    """
+    from sklearn.decomposition import PCA
+
+    pca = PCA()
+    pca.fit(data)
+    cumsum = np.cumsum(pca.explained_variance_ratio_)
+    x = np.arange(1, len(cumsum) + 1)
+    plt.plot(x, cumsum, label="累计可解释方差")
+    plt.title(title)
+    plt.xlabel("维度")
+    plt.ylabel("可解释方差")
+    if cross_line_y is not None:
+        y = np.ones(len(x)) * cross_line_y
+        plt.plot(x, y, "r--", label=f"y={cross_line_y}")
+    plt.legend()
+    plt.show()
+    return cumsum

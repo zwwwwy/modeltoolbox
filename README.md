@@ -318,6 +318,22 @@ fit是生成一步状态转移矩阵，matrix是接收参数n输出n步状态转
 
 如果没参数，就按在训练集上的混淆矩阵来评估
 
+### `evr_plot(data, cross_line_y=None, title=...)`
+本函数绘制主成分方差的贡献率图，在本图中可以看出数据降到多少维的时候仍然数据仍保留较大的差异  
+cross_line_y参数是绘制一条等于这个值的平行与y轴的直线
+
+用法：  
+
+```python
+from sklearn.datasets import fetch_openml
+import mtb
+
+mnist = fetch_openml("mnist_784", version=1)
+mtb.evr_plot(mnist["data"], 0.95)
+```
+
+这里还划了一条y=0.95的虚线，表示在保留95%的差异的化，维度大致是多少
+
 ## mathon
 
 以下是目前本模块所有函数的简介

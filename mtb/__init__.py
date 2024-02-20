@@ -11,5 +11,6 @@ from .main import (
     grey_model_21,
     DGM_21,
     Markov_predict,
-    fast_universal_svm
+    fast_universal_svm,
+    evr_plot
 )
