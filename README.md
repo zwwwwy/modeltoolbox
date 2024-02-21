@@ -334,6 +334,29 @@ mtb.evr_plot(mnist["data"], 0.95)
 
 这里还划了一条y=0.95的虚线，表示在保留95%的差异的化，维度大致是多少
 
+### `plot_k_in_kmeans`
+本函数用于估计k值，可以重复多次运行，介绍写文档里了，懒得抄了。  
+用法：  
+
+```py
+from sklearn.datasets import make_blobs
+from mtb.tools import prefer_settings
+
+prefer_settings()
+
+X, y = make_blobs(
+    n_samples=500,
+    n_features=2,
+    centers=4,
+    cluster_std=1,
+    center_box=(-10.0, 10.0),
+    shuffle=True,
+    random_state=1,
+)
+
+plot_k_in_kmeans(X)
+```
+
 ## mathon
 
 以下是目前本模块所有函数的简介

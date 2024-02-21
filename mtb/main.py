@@ -2,6 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 # 这里先把plotly的go函数移除，等以后如果用这个接口多了再放到前面
 # 多进程库同上，seaborn导入太慢，所以不在全局域导入
@@ -70,13 +71,20 @@ def grid_caculator_multiprocessing(
     mpmesh_y = y
     mpmesh_x = x
     with multiprocessing.Pool(n_jobs) as p:
-        stack = np.hstack(p.map(calculate, mpmesh_lsts))
+        # stack = np.hstack(p.map(calculate, mpmesh_lsts))
+        unstack = list(tqdm(p.imap(calculate, mpmesh_lsts), total=n_jobs))
+        # 这里的进度条只是显示各个进程完成的情况，不精确
+
+    stack = np.hstack(unstack)
+
     if draw_pic:
         fig = go.Figure(data=[go.Surface(x=x, y=y, z=stack)])
 
-        fig.update_layout(
-            title=title, xlabel=xlabel, ylabel=ylabel, zlabel=zlabel  # 标题
-        )
+        # fig.update_layout(
+        #     title=title, xlabel=xlabel, ylabel=ylabel, zlabel=zlabel  # 标题
+        # )
+        # 以上三行中的xlabel等参数在新版的plotly用不了了，所以改成了下面的
+        fig.update_layout(title=title)
 
         fig.show()
     else:
@@ -692,3 +700,71 @@ def evr_plot(data, cross_line_y=None, title="主成分方差贡献率图"):
     plt.legend()
     plt.show()
     return cumsum
+
+
+def plot_k_in_kmeans(data, begin=2, end=10):
+    """compute_k_in_kmeans.
+    本函数画出轮廓分数和k的关系图以及各种k值的轮廓图分析，用于确定聚类中的最佳k值
+    默认从k=2试到k=10，后面可以根据图像进一步缩小范围再运行本函数
+    本函数默认随机种子=42
+
+    Args:
+        data: 带聚类的数据
+        begin: k的起始值
+        end: k的终止值
+    """
+    from sklearn.cluster import KMeans
+    from sklearn.metrics import silhouette_score, silhouette_samples
+
+    k_lst = np.arange(begin, end + 1)
+
+    n_cycle = sum(k_lst)
+    update_cycle = 100 / n_cycle
+
+    n_row = int((end + 1) ** 0.5)
+    n_col = (end - begin + 1) // n_row
+    if n_row * n_col < end - begin + 1:
+        n_col += 1
+    fig, ax = plt.subplots(n_row, n_col, sharex="col")
+    ax = ax.flatten()
+    silhouette_score_val_lst = []
+    with tqdm(total=100) as pbar:
+        for i, k in enumerate(k_lst):
+            kmeans = KMeans(n_clusters=k, random_state=42, n_init="auto")
+            # 上面的算法运行次数设置为auto是为了不报警告，看着烦，原来默认是10
+            y_pred = kmeans.fit_predict(data)
+            silhouette_score_val = silhouette_score(data, y_pred)
+            silhouette_score_val_lst.append(silhouette_score_val)
+            silhouette_samples_val = silhouette_samples(data, y_pred)
+            y_lower = 10
+            for j in range(k):  # 遍历每一个集群，取第i个簇中对应所有样本的轮廓系数，并进行排序
+                s_values = silhouette_samples_val[y_pred == j]
+                s_values.sort()
+                size_cluster_j = s_values.shape[0]  # 得到第j个簇的样本数量
+                y_upper = y_lower + size_cluster_j  # 图中每个簇在y轴上的宽度
+                ax[i].fill_betweenx(
+                    y=np.arange(y_lower, y_upper), x1=0, x2=s_values, alpha=0.7
+                )
+                ax[i].text(
+                    -0.05, y_lower + 0.5 * size_cluster_j, str(j)
+                )  # 在y轴右侧标记每个簇的序号
+                y_lower = y_upper + 10
+                pbar.update(update_cycle)
+            ax[i].axvline(
+                x=silhouette_score_val, color="red", linestyle="--"
+            )  # 画出轮廓系数的平均值的直线（垂直于x轴）
+
+            if i % n_col == 0:
+                ax[i].set_ylabel("集群")
+            for tmp in ax[-n_col:]:
+                tmp.set_xlabel("轮廓系数")
+            ax[i].set_title(f"K={k}, 平均轮廓系数={silhouette_score_val:.2f}")
+            ax[i].set_yticks([])
+    plt.show()
+    plt.plot(k_lst, silhouette_score_val_lst)
+    plt.scatter(k_lst, silhouette_score_val_lst)
+    plt.xticks(k_lst)
+    plt.title("k与轮廓分数的关系")
+    plt.xlabel("k")
+    plt.ylabel("轮廓分数")
+    plt.show()

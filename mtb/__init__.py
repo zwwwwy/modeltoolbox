@@ -12,5 +12,6 @@ from .main import (
     DGM_21,
     Markov_predict,
     fast_universal_svm,
-    evr_plot
+    evr_plot,
+    plot_k_in_kmeans
 )
