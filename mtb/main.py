@@ -768,3 +768,29 @@ def plot_k_in_kmeans(data, begin=2, end=10):
     plt.xlabel("k")
     plt.ylabel("轮廓分数")
     plt.show()
+
+
+def regression_report(predict, real):
+    """regression_report.
+    计算回归模型的各项指标
+    Args:
+        predict:
+        real:
+    """
+    difference = real - predict
+    length = len(real)
+    mse = (difference**2).sum() / length
+    rmse = mse**0.5
+    mae = np.abs(difference).sum() / length
+    mape = np.abs(difference / real).sum() / length
+    r2 = 1 - mse / np.var(real)
+    evc = 1 - np.var(difference) / np.var(real)
+
+    print(f"均方误差（MSE）为               {mse}")
+    print(f"均方根误差（RMSE）为            {rmse}")
+    print(f"平均绝对误差（MAE）为           {mae}")
+    print(f"平均绝对百分比误差（MAPE）为    {mape}")
+    print(f"决定系数（R-square）为          {r2}")
+    print(f"可解释方差得分（EVC）为         {evc}")
+
+    return mse, rmse, mae, mape, r2, evc

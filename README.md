@@ -335,7 +335,7 @@ mtb.evr_plot(mnist["data"], 0.95)
 这里还划了一条y=0.95的虚线，表示在保留95%的差异的化，维度大致是多少
 
 ### `plot_k_in_kmeans`
-本函数用于估计k值，可以重复多次运行，介绍写文档里了，懒得抄了。  
+本函数用于估计k-means聚类的k值，可以重复多次运行，介绍写文档里了，懒得抄了。  
 用法：  
 
 ```py
@@ -356,6 +356,9 @@ X, y = make_blobs(
 
 plot_k_in_kmeans(X)
 ```
+
+### `regression_report(predict, real):`
+predict是真实值，real是预测值，输出各个评价参数，懒得写公式了
 
 ## mathon
 

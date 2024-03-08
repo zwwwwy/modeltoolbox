@@ -13,5 +13,6 @@ from .main import (
     Markov_predict,
     fast_universal_svm,
     evr_plot,
-    plot_k_in_kmeans
+    plot_k_in_kmeans,
+    regression_report
 )
