@@ -358,7 +358,18 @@ plot_k_in_kmeans(X)
 ```
 
 ### `regression_report(predict, real):`
-predict是真实值，real是预测值，输出各个评价参数，懒得写公式了
+predict是真实值，real是预测值，输出各个评价参数，下附公式  
+$MSE=\sum\limits^n_{i=1}(y_i-\widehat{y_i})^2\cdot\frac1n$  
+  
+$RMSE=\sqrt{MSE}$  
+  
+$MAE=\sum\limits^n_{i=1}|y_i-\widehat{y_i}|\cdot\frac1n$  
+  
+$MAPE=\sum\limits^n_{i=1}|\frac{y_i-\widehat{y_i}}{n}|\cdot\frac1n$  
+  
+$R-square=1-\frac{MSE}{Var(y_{real})}$  
+  
+$EVC=\frac{Var(y_{real})-Var(y_{predict})}{Var(y_{real})}$
 
 ## mathon
 

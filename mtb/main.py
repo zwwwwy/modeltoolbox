@@ -794,3 +794,59 @@ def regression_report(predict, real):
     print(f"可解释方差得分（EVC）为         {evc}")
 
     return mse, rmse, mae, mape, r2, evc
+
+
+def curve(model_name, classes, label, score):
+    """
+    画出ROC曲线和P-R曲线(每一类单独做图)
+    Args:
+        model_name: 模型名称, 如果有多个模型，传入列表，否则传入字符串
+        classes: 类别
+        label: 真实标签
+        score: 分数(proba或decision_function)，如果有多个模型，传入所有模型的分数构成的数组
+    """
+    from sklearn.metrics import precision_recall_curve, roc_curve, auc
+    from sklearn.preprocessing import label_binarize
+
+    y = label_binarize(label, classes=classes)
+    fig, axs = plt.subplots(length := len(classes), 2)
+
+    if isinstance(model_name, list):
+        for j in range(len(model_name)):
+            for i in range(length):
+                fpr, tpr, _ = roc_curve(y[:, i], score[j][:, i])
+                roc_auc = auc(fpr, tpr)
+                precision, recall, _ = precision_recall_curve(y[:, i], score[j][:, i])
+                axs[i, 0].plot(
+                    fpr, tpr, "r", label=f"{model_name[j]},auc={roc_auc:0.3f}"
+                )
+                axs[i, 0].plot([0, 1], [0, 1], "b--")
+                axs[i, 0].set_title(f"类别{classes[i]}的ROC曲线, auc={roc_auc}")
+                axs[i, 0].set_xlabel("假正例率")
+                axs[i, 0].set_ylabel("真正例率")
+                axs[i, 1].plot(recall, precision, "orange", label=f"{model_name[j]}")
+                axs[i, 1].set_title(f"类别{classes[i]}的P-R曲线")
+                axs[i, 1].set_xlabel("召回率")
+                axs[i, 1].set_ylabel("查准率")
+                axs[i, 0].legend()
+                axs[i, 1].legend()
+        plt.tight_layout()
+        plt.show()
+
+    else:
+        for i in range(length):
+            fpr, tpr, _ = roc_curve(y[:, i], score[:, i])
+            roc_auc = auc(fpr, tpr)
+            precision, recall, _ = precision_recall_curve(y[:, i], score[:, i])
+            axs[i, 0].plot(fpr, tpr, "r", label=f"auc={roc_auc:0.3f}")
+            axs[i, 0].plot([0, 1], [0, 1], "b--")
+            axs[i, 0].set_title(f"类别{classes[i]}的ROC曲线, auc={roc_auc}")
+            axs[i, 0].set_xlabel("假正例率")
+            axs[i, 0].set_ylabel("真正例率")
+            axs[i, 0].legend()
+            axs[i, 1].plot(recall, precision, "orange")
+            axs[i, 1].set_title(f"类别{classes[i]}的P-R曲线")
+            axs[i, 1].set_xlabel("召回率")
+            axs[i, 1].set_ylabel("查准率")
+        plt.tight_layout()
+        plt.show()
