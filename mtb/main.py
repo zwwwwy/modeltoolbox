@@ -809,7 +809,7 @@ def single_roc_pr_curve(model_name, classes, label, score):
     from sklearn.preprocessing import label_binarize
 
     y = label_binarize(label, classes=classes)
-    if length := len(classes) == 2:
+    if (length := len(classes)) == 2:
         fig, axs = plt.subplots(1, 2)
     else:
         fig, axs = plt.subplots(length, 2)
