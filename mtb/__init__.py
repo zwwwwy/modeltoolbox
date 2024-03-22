@@ -14,5 +14,6 @@ from .main import (
     fast_universal_svm,
     evr_plot,
     plot_k_in_kmeans,
-    regression_report
+    regression_report,
+    single_roc_pr_curve
 )

@@ -371,6 +371,29 @@ $R-square=1-\frac{MSE}{Var(y_{real})}$
   
 $EVC=\frac{Var(y_{real})-Var(y_{predict})}{Var(y_{real})}$
 
+### `single_roc_pr_curve(model_name, classes, label, score)`
+本函数可以绘制一个或多个函数的roc曲线和pr曲线，若非二分类问题则对所有类单独画图。  
+用法：  
+单个模型  
+```python
+import mtb
+mtb.single_roc_pr_curve('随机森林模型', rnd_clf.classes_, y_test, rnd_clf.predict_proba(x_test))
+
+```
+多个模型  
+
+```python
+import mtb
+
+mtb.single_roc_pr_curve(
+    ["随机森林模型 ", "逻辑回归模型"],
+    rnd_clf.classes_,
+    y_test,
+    [rnd_clf.predict_proba(y_test), log_reg.predict_proba(y_test)],
+)
+
+```
+
 ## mathon
 
 以下是目前本模块所有函数的简介

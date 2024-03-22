@@ -796,7 +796,7 @@ def regression_report(predict, real):
     return mse, rmse, mae, mape, r2, evc
 
 
-def curve(model_name, classes, label, score):
+def single_roc_pr_curve(model_name, classes, label, score):
     """
     画出ROC曲线和P-R曲线(每一类单独做图)
     Args:
@@ -809,44 +809,81 @@ def curve(model_name, classes, label, score):
     from sklearn.preprocessing import label_binarize
 
     y = label_binarize(label, classes=classes)
-    fig, axs = plt.subplots(length := len(classes), 2)
+    if length := len(classes) == 2:
+        fig, axs = plt.subplots(1, 2)
+    else:
+        fig, axs = plt.subplots(length, 2)
 
     if isinstance(model_name, list):
         for j in range(len(model_name)):
-            for i in range(length):
-                fpr, tpr, _ = roc_curve(y[:, i], score[j][:, i])
+            if len(classes) == 2:
+                fpr, tpr, _ = roc_curve(y, score[j][:, 1])
                 roc_auc = auc(fpr, tpr)
-                precision, recall, _ = precision_recall_curve(y[:, i], score[j][:, i])
-                axs[i, 0].plot(
-                    fpr, tpr, "r", label=f"{model_name[j]},auc={roc_auc:0.3f}"
-                )
-                axs[i, 0].plot([0, 1], [0, 1], "b--")
-                axs[i, 0].set_title(f"类别{classes[i]}的ROC曲线, auc={roc_auc}")
-                axs[i, 0].set_xlabel("假正例率")
-                axs[i, 0].set_ylabel("真正例率")
-                axs[i, 1].plot(recall, precision, "orange", label=f"{model_name[j]}")
-                axs[i, 1].set_title(f"类别{classes[i]}的P-R曲线")
-                axs[i, 1].set_xlabel("召回率")
-                axs[i, 1].set_ylabel("查准率")
-                axs[i, 0].legend()
-                axs[i, 1].legend()
+                precision, recall, _ = precision_recall_curve(y, score[j][:, 1])
+                axs[0].plot(fpr, tpr, label=f"{model_name[j]},auc={roc_auc:0.3f}")
+                axs[0].plot([0, 1], [0, 1], "b--")
+                axs[0].set_title(f"ROC曲线, auc={roc_auc}")
+                axs[0].set_xlabel("假正例率")
+                axs[0].set_ylabel("真正例率")
+                axs[1].plot(recall, precision, label=f"{model_name[j]}")
+                axs[1].set_title("P-R曲线")
+                axs[1].set_xlabel("召回率")
+                axs[1].set_ylabel("查准率")
+                axs[0].legend()
+                axs[1].legend()
+            else:
+                for i in range(length):
+                    fpr, tpr, _ = roc_curve(y[:, i], score[j][:, i])
+                    roc_auc = auc(fpr, tpr)
+                    precision, recall, _ = precision_recall_curve(
+                        y[:, i], score[j][:, i]
+                    )
+                    axs[i, 0].plot(
+                        fpr, tpr, label=f"{model_name[j]},auc={roc_auc:0.3f}"
+                    )
+                    axs[i, 0].plot([0, 1], [0, 1], "b--")
+                    axs[i, 0].set_title(f"类别{classes[i]}的ROC曲线, auc={roc_auc}")
+                    axs[i, 0].set_xlabel("假正例率")
+                    axs[i, 0].set_ylabel("真正例率")
+                    axs[i, 1].plot(recall, precision, label=f"{model_name[j]}")
+                    axs[i, 1].set_title(f"类别{classes[i]}的P-R曲线")
+                    axs[i, 1].set_xlabel("召回率")
+                    axs[i, 1].set_ylabel("查准率")
+                    axs[i, 0].legend()
+                    axs[i, 1].legend()
         plt.tight_layout()
         plt.show()
 
     else:
-        for i in range(length):
-            fpr, tpr, _ = roc_curve(y[:, i], score[:, i])
+        if len(classes) == 2:
+            fpr, tpr, _ = roc_curve(y, score[:, 1])
             roc_auc = auc(fpr, tpr)
-            precision, recall, _ = precision_recall_curve(y[:, i], score[:, i])
-            axs[i, 0].plot(fpr, tpr, "r", label=f"auc={roc_auc:0.3f}")
-            axs[i, 0].plot([0, 1], [0, 1], "b--")
-            axs[i, 0].set_title(f"类别{classes[i]}的ROC曲线, auc={roc_auc}")
-            axs[i, 0].set_xlabel("假正例率")
-            axs[i, 0].set_ylabel("真正例率")
-            axs[i, 0].legend()
-            axs[i, 1].plot(recall, precision, "orange")
-            axs[i, 1].set_title(f"类别{classes[i]}的P-R曲线")
-            axs[i, 1].set_xlabel("召回率")
-            axs[i, 1].set_ylabel("查准率")
+            precision, recall, _ = precision_recall_curve(y, score[:, 1])
+            axs[0].plot(fpr, tpr, "r", label=f"{model_name},auc={roc_auc:0.3f}")
+            axs[0].plot([0, 1], [0, 1], "b--")
+            axs[0].set_title(f"ROC曲线, auc={roc_auc}")
+            axs[0].set_xlabel("假正例率")
+            axs[0].set_ylabel("真正例率")
+            axs[1].plot(recall, precision, "orange", label=f"{model_name}")
+            axs[1].set_title("P-R曲线")
+            axs[1].set_xlabel("召回率")
+            axs[1].set_ylabel("查准率")
+            axs[0].legend()
+            axs[1].legend()
+        else:
+            for i in range(length):
+                fpr, tpr, _ = roc_curve(y[:, i], score[:, i])
+                roc_auc = auc(fpr, tpr)
+                precision, recall, _ = precision_recall_curve(y[:, i], score[:, i])
+                axs[i, 0].plot(fpr, tpr, "r", label=f"auc={roc_auc:0.3f}")
+                axs[i, 0].plot([0, 1], [0, 1], "b--")
+                axs[i, 0].set_title(f"类别{classes[i]}的ROC曲线, auc={roc_auc}")
+                axs[i, 0].set_xlabel("假正例率")
+                axs[i, 0].set_ylabel("真正例率")
+                axs[i, 0].legend()
+                axs[i, 1].plot(recall, precision, "orange")
+                axs[i, 1].set_title(f"类别{classes[i]}的P-R曲线")
+                axs[i, 1].set_xlabel("召回率")
+                axs[i, 1].set_ylabel("查准率")
         plt.tight_layout()
         plt.show()
