@@ -887,3 +887,52 @@ def single_roc_pr_curve(model_name, classes, label, score):
                 axs[i, 1].set_ylabel("查准率")
         plt.tight_layout()
         plt.show()
+
+
+def multi_roc_pr_curve(classes, label, score):
+    """
+    画出ROC曲线和P-R曲线(所有类别一起做图)
+    Args:
+        classes: 类别
+        label: 真实标签
+        score: 分数(proba或decision_function)
+    """
+    from sklearn.metrics import precision_recall_curve, roc_curve, auc
+    from sklearn.preprocessing import label_binarize
+
+    y = label_binarize(label, classes=classes)
+    fig, axs = plt.subplots(1, 2)
+    for i in range(len(classes)):
+        fpr, tpr, _ = roc_curve(y[:, i], score[:, i])
+        roc_auc = auc(fpr, tpr)
+        precision, recall, _ = precision_recall_curve(y[:, i], score[:, i])
+        axs[0].plot(fpr, tpr, label=f"{classes[i]},auc={roc_auc:0.3f}")
+        axs[0].plot([0, 1], [0, 1], "b--")
+        axs[0].set_title("ROC曲线")
+        axs[0].set_xlabel("假正例率")
+        axs[0].set_ylabel("真正例率")
+        axs[1].plot(recall, precision, label=f"{classes[i]}")
+        axs[1].set_title("P-R曲线")
+        axs[1].set_xlabel("召回率")
+        axs[1].set_ylabel("查准率")
+        axs[0].legend()
+        axs[1].legend()
+
+    plt.show()
+
+
+def find_error(positive, pred, label, data):
+    """
+    找出数据集中所有的TP, FP, TN, FN（OvR）
+    Args:
+        positive: 正例
+        pred: 预测值
+        label: 真实值
+        data: 数据
+    """
+
+    tp = data[(pred == positive) & (label == positive)]
+    fp = data[(pred == positive) & (label != positive)]
+    tn = data[(pred != positive) & (label != positive)]
+    fn = data[(pred != positive) & (label == positive)]
+    return tp, fp, tn, fn

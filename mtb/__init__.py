@@ -15,5 +15,7 @@ from .main import (
     evr_plot,
     plot_k_in_kmeans,
     regression_report,
-    single_roc_pr_curve
+    single_roc_pr_curve,
+    multi_roc_pr_curve,
+    find_error
 )

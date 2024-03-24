@@ -393,6 +393,43 @@ mtb.single_roc_pr_curve(
 )
 
 ```
+### `multi_roc_pr_curve(classes, label, score)`
+本函数绘制<view style='color:red'>单个模型</view>的<view style="color:red">多分类问题</view>的roc和pr曲线（如果要绘制二分类，用上面的single_roc_pr_curve）。
+  
+用法：
+
+```python
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+
+# 加载数据集
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+# 划分训练集和测试集
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 初始化随机森林分类器
+rf_classifier = RandomForestClassifier(n_estimators=100, random_state=42)
+
+# 训练模型
+rf_classifier.fit(X_train, y_train)
+
+# 预测
+y_pred = rf_classifier.predict(X_test)
+
+mtb.multi_roc_pr_curve(rf_classifier.classes_, y_test, rf_classifier.predict_proba(x_test))
+
+```
+### `find_error(positive, pred, label, data)`
+本函数找出data中所有的tp、fp、tn、fn  
+positive是指定的正例，要求数据和类型与pred和label里的均一致。  
+pred表示预测值。  
+label表示真实值。  
+data表示pred和label对应的数据集。   
 
 ## mathon
 
