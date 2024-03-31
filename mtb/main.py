@@ -936,3 +936,91 @@ def find_error(positive, pred, label, data):
     tn = data[(pred != positive) & (label != positive)]
     fn = data[(pred != positive) & (label == positive)]
     return tp, fp, tn, fn
+
+
+class Auto_ARIMA:
+    def __init__(self):
+        # 初始化
+
+        self.model = None
+        self.isdiff = None
+        self.d = None
+        self.p = None
+        self.q = None
+        self.data = None
+        self.alpha = 0.05
+        self.diff_n = 0
+        self.restore = []
+
+    def fit(self, data, max_p=6, max_q=6):
+        # from statsmodels.tsa.arima_model import ARIMA
+        import statsmodels.api as sm
+        from statsmodels.tsa.stattools import adfuller
+
+        # 这里先进行ADF检验判断数据是否平稳，不平稳进行差分操作，记录差分阶数以备后续还原
+        # 然后使用特定方法判断AR和MA的阶数
+        # 返回预测好的原始模型，然后赋值给self.model
+        self.data = data
+        while True:
+            adf_result = adfuller(self.data)
+            if adf_result[1] < self.alpha:  # p_value值大，无法拒接原假设,有可能单位根，需要T检验
+                print(f"差分阶数为{self.diff_n}，数据平稳")
+                self.d = self.diff_n
+                break
+            else:
+                if (
+                    adf_result[0] < adf_result[4]["5%"]
+                ):  # 代表t检验的值小于5%,置信度为95%以上，这里还有'1%'和'10%'
+                    print(f"差分阶数为{self.diff_n}，数据平稳")
+                    self.d = self.diff_n
+                    break  # 拒接原假设，无单位根，平稳的
+                else:
+                    self.restore.append(self.data[0])  # 添加data的第一个值，用于还原
+                    self.data = np.diff(self.data)  # 无法拒绝原假设，有单位根，不平稳的
+                    self.diff_n += 1
+                    if self.diff_n >= 1000:
+                        print("差分阶数超过1000，无法平稳")
+                        return
+
+        # 使用aic确定p和q的阶数
+        aic_values = {}
+        for p in range(max_p):
+            for q in range(max_q):
+                model = sm.tsa.ARIMA(self.data, order=(p, self.d, q))
+                result = model.fit()
+                aic_values[(p, self.d, q)] = result.aic
+        min_aic = min(aic_values, key=aic_values.get)
+        print(f"最佳的ARIMA模型为ARIMA{min_aic}")
+        self.model = sm.tsa.ARIMA(self.data, order=min_aic).fit()
+        self.restore = self.restore[::-1]
+
+    def predict(self, step):
+        # 这里应该添加一个参数表示返回真实值还是差分值
+        # 如果返回真实值，先判断是否差分过，若差分过则还原
+        # 返回预测值
+        result = self.model.forecast(step)
+        if self.d:
+            for i in range(len(self.restore)):
+                result = np.r_[self.restore[i], self.data, result]
+                result = np.cumsum(result)
+            return result[-step:]
+        else:
+            return result
+
+    def report(self):
+        from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+        print(self.model.summary())
+        fig, axes = plt.subplots(3, 1, figsize=(10, 9))
+        plot_acf(self.data, ax=axes[0])
+        plot_pacf(self.data, ax=axes[1])
+        residuals = pd.DataFrame(self.model.resid)
+        residuals.plot(ax=axes[2])
+        plt.title('Residuals')
+        plt.tight_layout()
+        plt.show()
+
+    def test(self, start, end):
+        from statsmodels.graphics.tsaplots import plot_predict
+
+        plot_predict(self.model, start=start, end=end)
+        plt.show()

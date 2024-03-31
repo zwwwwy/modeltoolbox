@@ -431,6 +431,50 @@ pred表示预测值。
 label表示真实值。  
 data表示pred和label对应的数据集。   
 
+### Auto_ARIMA
+
+类，建立arima模型
+
+adf检验：   
+第一个是adt检验的结果，简称为T值，表示t统计量。  
+第二个简称为p值，表示t统计量对应的概率值。  
+第三个表示延迟。  
+第四个表示测试的次数。  
+第五个是配合第一个一起看的，是在99%，95%，90%置信区间下的临界的ADF检验的值。  
+第一点，1%、%5、%10不同程度拒绝原假设的统计值和ADF Test result的比较
+ADF Test result（第一个值）同时小于1%、5%、10%即说明非常好地拒绝该假设。本数据中，adf结果为-8， 小于三个level的统计值  
+第二点，p值要求小于给定的显著水平，p值要小于0.05，等于0是最好的。本数据中，P-value 为 1e-15,接近0.  
+p值为0.0229<0.05，说明在5%下显著，即拒绝原假设，是平稳的。  
+
+#### 重要属性
+`self.p`, `self.d`, `self.q`: 阶数  
+`self.model`: 已经fit好的模型
+
+#### `fit(self, data, max_p=6, max_q=6)`
+
+data是待拟合的序列  
+max_p和max_q是寻找p和q时的最大值
+
+#### `predict(self, step)`
+
+step是预测的步数（未来）
+
+#### `report(self)`
+输出模型性能报告
+
+#### `test(self, start, end)`
+用于检测模型对过去start到end期间的预测性能
+
+#### 用法
+
+```python
+a = Auto_ARIMA()
+np.random.seed(0)
+a.fit(np.random.normal(0, 1, 100))
+a.report()
+a.test(20, 80)
+```
+  
 ## mathon
 
 以下是目前本模块所有函数的简介
