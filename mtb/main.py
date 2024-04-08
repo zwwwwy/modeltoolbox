@@ -1009,13 +1009,14 @@ class Auto_ARIMA:
 
     def report(self):
         from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+
         print(self.model.summary())
         fig, axes = plt.subplots(3, 1, figsize=(10, 9))
         plot_acf(self.data, ax=axes[0])
         plot_pacf(self.data, ax=axes[1])
         residuals = pd.DataFrame(self.model.resid)
         residuals.plot(ax=axes[2])
-        plt.title('Residuals')
+        plt.title("Residuals")
         plt.tight_layout()
         plt.show()
 
@@ -1024,3 +1025,36 @@ class Auto_ARIMA:
 
         plot_predict(self.model, start=start, end=end)
         plt.show()
+
+
+class Lagrange_interpolation:
+    def __init__(self):
+        self.x = None
+        self.y = None
+        self.n = None
+        self.m = None
+        self.res = []
+
+    def fit(self, x, y):
+        """
+        x: x坐标
+        y: y坐标
+        """
+        self.x = x
+        self.y = y
+        self.n = len(x)
+
+    def predict(self, x):
+        if not self.res:
+            self.res = []
+        self.m = len(x)
+        for i in range(self.m):
+            result = 0
+            for j in range(self.n):
+                tmp = 1
+                for k in range(self.n):
+                    if k != j:
+                        tmp *= (x[i] - self.x[k]) / (self.x[j] - self.x[k])
+                result += tmp * self.y[j]
+            self.res.append(result)
+        return self.res

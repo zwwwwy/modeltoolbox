@@ -474,7 +474,19 @@ a.fit(np.random.normal(0, 1, 100))
 a.report()
 a.test(20, 80)
 ```
-  
+
+### `Lagrange_interpolation`
+类，用来进行拉格朗日插值
+
+直接上用法  
+
+```python
+a = Lagrange_interpolation()
+a.fit([i for i in range(1, 7)], [16, 18, 21, 17, 15, 12])
+print(a.predict([1.5, 2.6]))
+```
+predict的参数可以是列表也可以是单独的横坐标
+
 ## mathon
 
 以下是目前本模块所有函数的简介
