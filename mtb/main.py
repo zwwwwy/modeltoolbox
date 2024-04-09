@@ -1047,7 +1047,10 @@ class Lagrange_interpolation:
     def predict(self, x):
         if not self.res:
             self.res = []
-        self.m = len(x)
+        if isinstance(x, int) or isinstance(x, float):
+            self.m = 1
+        else:
+            self.m = len(x)
         for i in range(self.m):
             result = 0
             for j in range(self.n):
@@ -1058,3 +1061,86 @@ class Lagrange_interpolation:
                 result += tmp * self.y[j]
             self.res.append(result)
         return self.res
+
+
+class Liner_interpolation:
+    def __init__(self):
+        self.x = None
+        self.y = None
+        self.n = None
+        self.m = None
+        self.res = []
+
+    def fit(self, x, y):
+        """
+        x: x坐标
+        y: y坐标
+        """
+        self.x = x
+        self.y = y
+        self.n = len(x)
+
+    def predict(self, x):
+        if not self.res:
+            self.res = []
+        if isinstance(x, int) or isinstance(x, float):
+            self.m = 1
+        else:
+            self.m = len(x)
+        for i in range(self.m):
+            for j in range(self.n - 1):
+                if self.x[j] <= x[i] <= self.x[j + 1]:
+                    result = (self.y[j + 1] - self.y[j]) / (
+                        self.x[j + 1] - self.x[j]
+                    ) * (x[i] - self.x[j]) + self.y[j]
+                    self.res.append(result)
+                    break
+        return self.res
+
+
+class Csape_interpolation:
+    def __init__(self):
+        self.x = None
+        self.y = None
+        self.n = None
+        self.m = None
+        self.res = []
+
+    def fit(self, x, y):
+        """
+        x: x坐标
+        y: y坐标
+        """
+        self.x = x
+        self.y = y
+        self.n = len(x)
+
+    def predict(self, x):
+        if not self.res:
+            self.res = []
+        if isinstance(x, int) or isinstance(x, float):
+            self.m = 1
+        else:
+            self.m = len(x)
+        from scipy.interpolate import CubicSpline
+
+        cs = CubicSpline(self.x, self.y)
+        for i in range(self.m):
+            result = cs(x[i])
+            self.res.append(result)
+        return self.res
+
+
+def chi2_test(data):
+    """
+    卡方检验
+    Args:
+        data: 数据
+    """
+    from scipy.stats import chi2_contingency
+
+    chi2, p, dof, expected = chi2_contingency(data)
+    print(f"卡方值为{chi2}")
+    print(f"p值为{p}")
+    print(f"自由度为{dof}")
+    print(f"期望值为{expected}")

@@ -487,6 +487,19 @@ print(a.predict([1.5, 2.6]))
 ```
 predict的参数可以是列表也可以是单独的横坐标
 
+### `Liner_interpolation`
+分段线性插值，用法同上  
+### `Csape_interpolation`
+
+### `chi2_test(data)`
+卡方检验  
+用法：  
+
+```python
+x = [[50, 75], [125, 175], [90, 30], [45, 10]]
+chi2_test(x)
+```
+
 ## mathon
 
 以下是目前本模块所有函数的简介

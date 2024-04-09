@@ -17,5 +17,8 @@ from .main import (
     regression_report,
     single_roc_pr_curve,
     multi_roc_pr_curve,
-    find_error
+    find_error,
+    Lagrange_interpolation,
+    Liner_interpolation,
+    chi2_test
 )
