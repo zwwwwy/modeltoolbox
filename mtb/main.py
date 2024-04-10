@@ -1144,3 +1144,21 @@ def chi2_test(data):
     print(f"p值为{p}")
     print(f"自由度为{dof}")
     print(f"期望值为{expected}")
+
+
+def r2_test(predict, real):
+    if not isinstance(predict, np.ndarray):
+        predict = np.array(predict)
+    if not isinstance(real, np.ndarray):
+        real = np.array(real)
+    mean_y = np.mean(real)
+    sst = np.sum((real - mean_y)**2)
+    sse = np.sum((real - predict)**2)
+    ssr = sst - sse
+    r2 = 1 - sse / sst
+    print(f"可决系数R2为{r2}")
+    print(f"回归平方和SSR为{ssr}")
+    print(f"残差平方和SSE为{sse}")
+    print(f"总平方和SST为{sst}")
+
+

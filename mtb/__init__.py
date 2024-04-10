@@ -20,5 +20,6 @@ from .main import (
     find_error,
     Lagrange_interpolation,
     Liner_interpolation,
-    chi2_test
+    chi2_test,
+    r2_test
 )
