@@ -18,6 +18,7 @@ from .main import (
     single_roc_pr_curve,
     multi_roc_pr_curve,
     find_error,
+    Auto_ARIMA,
     Lagrange_interpolation,
     Liner_interpolation,
     chi2_test,
