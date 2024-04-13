@@ -987,10 +987,16 @@ class Auto_ARIMA:
         for p in range(max_p):
             for q in range(max_q):
                 model = sm.tsa.ARIMA(self.data, order=(p, self.d, q))
-                result = model.fit()
+                try:
+                    result = model.fit()
+                except Exception as e:
+                    print(f"ARIMA{p}{self.d}{q}模型不可用")
+                    continue
                 aic_values[(p, self.d, q)] = result.aic
         min_aic = min(aic_values, key=aic_values.get)
         print(f"最佳的ARIMA模型为ARIMA{min_aic}")
+        self.p = min_aic[0]
+        self.q = min_aic[2]
         self.model = sm.tsa.ARIMA(self.data, order=min_aic).fit()
         self.restore = self.restore[::-1]
 
@@ -1023,8 +1029,12 @@ class Auto_ARIMA:
     def test(self, start, end):
         from statsmodels.graphics.tsaplots import plot_predict
 
+        past_predictions = self.model.predict(start=start, end=end)
         plot_predict(self.model, start=start, end=end)
         plt.show()
+
+        # 返回预测的过去数据
+        return past_predictions
 
 
 class Lagrange_interpolation:
@@ -1152,13 +1162,11 @@ def r2_test(predict, real):
     if not isinstance(real, np.ndarray):
         real = np.array(real)
     mean_y = np.mean(real)
-    sst = np.sum((real - mean_y)**2)
-    sse = np.sum((real - predict)**2)
+    sst = np.sum((real - mean_y) ** 2)
+    sse = np.sum((real - predict) ** 2)
     ssr = sst - sse
     r2 = 1 - sse / sst
     print(f"可决系数R2为{r2}")
     print(f"回归平方和SSR为{ssr}")
     print(f"残差平方和SSE为{sse}")
     print(f"总平方和SST为{sst}")
-
-
