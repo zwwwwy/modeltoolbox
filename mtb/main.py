@@ -782,18 +782,26 @@ def regression_report(predict, real):
     mse = (difference**2).sum() / length
     rmse = mse**0.5
     mae = np.abs(difference).sum() / length
-    mape = np.abs(difference / real).sum() / length
-    r2 = 1 - mse / np.var(real)
+    mape = np.abs(difference / length).sum() / length
     evc = 1 - np.var(difference) / np.var(real)
+
+    mean_y = np.mean(real)
+    sst = np.sum((real - mean_y) ** 2)
+    sse = np.sum((real - predict) ** 2)
+    ssr = sst - sse
+    r2 = 1 - sse / sst
 
     print(f"均方误差（MSE）为               {mse}")
     print(f"均方根误差（RMSE）为            {rmse}")
     print(f"平均绝对误差（MAE）为           {mae}")
     print(f"平均绝对百分比误差（MAPE）为    {mape}")
-    print(f"决定系数（R-square）为          {r2}")
     print(f"可解释方差得分（EVC）为         {evc}")
+    print(f"决定系数（R-square）为          {r2}")
+    print(f"回归平方和SSR为                 {ssr}")
+    print(f"残差平方和SSE为                 {sse}")
+    print(f"总平方和SST为                   {sst}")
 
-    return mse, rmse, mae, mape, r2, evc
+    return mse, rmse, mae, mape, evc, r2, ssr, sse, sst
 
 
 def single_roc_pr_curve(model_name, classes, label, score):
@@ -1154,19 +1162,3 @@ def chi2_test(data):
     print(f"p值为{p}")
     print(f"自由度为{dof}")
     print(f"期望值为{expected}")
-
-
-def r2_test(predict, real):
-    if not isinstance(predict, np.ndarray):
-        predict = np.array(predict)
-    if not isinstance(real, np.ndarray):
-        real = np.array(real)
-    mean_y = np.mean(real)
-    sst = np.sum((real - mean_y) ** 2)
-    sse = np.sum((real - predict) ** 2)
-    ssr = sst - sse
-    r2 = 1 - sse / sst
-    print(f"可决系数R2为{r2}")
-    print(f"回归平方和SSR为{ssr}")
-    print(f"残差平方和SSE为{sse}")
-    print(f"总平方和SST为{sst}")

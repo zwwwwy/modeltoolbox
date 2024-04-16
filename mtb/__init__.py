@@ -22,5 +22,4 @@ from .main import (
     Lagrange_interpolation,
     Liner_interpolation,
     chi2_test,
-    r2_test
 )
