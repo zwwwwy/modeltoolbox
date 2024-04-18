@@ -167,10 +167,14 @@ def sklearn_model_report(model, train_data, label, scoring="accuracy"):
 
     if isinstance(scoring, str):
         _train = cross_val_score(model, train_data, label, scoring=scoring)
-        print(f"在给出的训练集上，本模型{scoring}指标的多次预测平均值为：{_train.mean()}")
+        print(
+            f"在给出的训练集上，本模型{scoring}指标的多次预测平均值为：{_train.mean()}"
+        )
 
 
-def confusion_matrix_analysis(confusion_matrix, title1="混淆矩阵热力图", title2="错误率热力图"):
+def confusion_matrix_analysis(
+    confusion_matrix, title1="混淆矩阵热力图", title2="错误率热力图"
+):
     """confusion_matrix_analysis. 输出俩图，第一个图是混淆矩阵的热力图
     第二个图里面每一行是代表准确值，每一列代表预测值，所以每一个格子里的值代表某一准确值被预测为某错误的预测值的概率
     返回precision, recall, false_positive_rate
@@ -315,7 +319,9 @@ def learning_curve(model, x, y, title="学习曲线"):
         delta = 2 * delta / (RMSE_train[-10:] + RMSE_test[-10:])
         delta = delta.mean()
         if delta <= 0.1:
-            print(f"训练集和测试集的误差相差{delta*100}%, 结果不一定好，注意一下误差，可能会过拟合")
+            print(
+                f"训练集和测试集的误差相差{delta*100}%, 结果不一定好，注意一下误差，可能会过拟合"
+            )
         else:
             print(f"训练集和测试集的误差相差{delta*100}%, 可能是欠拟合")
     return model
@@ -737,7 +743,9 @@ def plot_k_in_kmeans(data, begin=2, end=10):
             silhouette_score_val_lst.append(silhouette_score_val)
             silhouette_samples_val = silhouette_samples(data, y_pred)
             y_lower = 10
-            for j in range(k):  # 遍历每一个集群，取第i个簇中对应所有样本的轮廓系数，并进行排序
+            for j in range(
+                k
+            ):  # 遍历每一个集群，取第i个簇中对应所有样本的轮廓系数，并进行排序
                 s_values = silhouette_samples_val[y_pred == j]
                 s_values.sort()
                 size_cluster_j = s_values.shape[0]  # 得到第j个簇的样本数量
@@ -971,7 +979,9 @@ class Auto_ARIMA:
         self.data = data
         while True:
             adf_result = adfuller(self.data)
-            if adf_result[1] < self.alpha:  # p_value值大，无法拒接原假设,有可能单位根，需要T检验
+            if (
+                adf_result[1] < self.alpha
+            ):  # p_value值大，无法拒接原假设,有可能单位根，需要T检验
                 print(f"差分阶数为{self.diff_n}，数据平稳")
                 self.d = self.diff_n
                 break
@@ -998,7 +1008,7 @@ class Auto_ARIMA:
                 try:
                     result = model.fit()
                 except Exception as e:
-                    print(f"ARIMA{p}{self.d}{q}模型不可用")
+                    print(f"ARIMA{p}{self.d}{q}模型不可用, error: {e}")
                     continue
                 aic_values[(p, self.d, q)] = result.aic
         min_aic = min(aic_values, key=aic_values.get)
@@ -1034,12 +1044,20 @@ class Auto_ARIMA:
         plt.tight_layout()
         plt.show()
 
-    def test(self, start, end):
+    def test(self, start=0, end=-1):
         from statsmodels.graphics.tsaplots import plot_predict
 
-        past_predictions = self.model.predict(start=start, end=end)
-        plot_predict(self.model, start=start, end=end)
+        past_predictions = self.model.predict(start=start, end=end, dynamic=False)
+        plot_predict(self.model, start=start, end=end, dynamic=False)
+        if end == -1:
+            plt.plot(self.data[start:], label="真实值")
+        else:
+            plt.plot(self.data[start : end + 1], label="真实值")
+        plt.legend()
         plt.show()
+
+        regression_report(past_predictions, self.data)
+        print(past_predictions, self.data)
 
         # 返回预测的过去数据
         return past_predictions
