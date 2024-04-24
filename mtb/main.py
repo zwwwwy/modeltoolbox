@@ -111,7 +111,7 @@ def change_col_dtype(DataFrame, before, after):
     return DataFrame
 
 
-def corr_heatmap(DataFrame, title="pic"):
+def corr_heatmap(DataFrame, title="pic", figsize=None):
     """heatmap.快速绘制出一个含有数字的DataFrame的相关系数热力图
 
     Args:
@@ -122,9 +122,13 @@ def corr_heatmap(DataFrame, title="pic"):
 
     DataFrame = change_col_dtype(DataFrame, bool, int)
     numeric_columns = DataFrame.select_dtypes(include=["number"])
-    heatmap(numeric_columns.corr(), annot=True)
+    corr = numeric_columns.corr()
+    heatmap(corr, annot=True)
+    if figsize is not None:
+        plt.figure(figsize=figsize)
     plt.title(title)
     plt.show()
+    return corr
 
 
 def fast_corrscatter_evaluate(DataFrame, target, n=4):
@@ -1044,15 +1048,15 @@ class Auto_ARIMA:
         plt.tight_layout()
         plt.show()
 
-    def test(self, start=0, end=-1):
+    def test(self, start=0, end=-1, alpha=1):
         from statsmodels.graphics.tsaplots import plot_predict
 
         past_predictions = self.model.predict(start=start, end=end, dynamic=False)
         plot_predict(self.model, start=start, end=end, dynamic=False)
         if end == -1:
-            plt.plot(self.data[start:], label="真实值")
+            plt.plot(self.data[start:], label="真实值", alpha=alpha)
         else:
-            plt.plot(self.data[start : end + 1], label="真实值")
+            plt.plot(self.data[start : end + 1], label="真实值", alpha=alpha)
         plt.legend()
         plt.show()
 
