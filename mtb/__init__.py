@@ -21,5 +21,6 @@ from .main import (
     Auto_ARIMA,
     Lagrange_interpolation,
     Liner_interpolation,
+    Csape_interpolation,
     chi2_test,
 )

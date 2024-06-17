@@ -111,7 +111,7 @@ def change_col_dtype(DataFrame, before, after):
     return DataFrame
 
 
-def corr_heatmap(DataFrame, title="pic", figsize=None):
+def corr_heatmap(DataFrame, title="pic", figsize=None, save_path=None):
     """heatmap.快速绘制出一个含有数字的DataFrame的相关系数热力图
 
     Args:
@@ -123,10 +123,12 @@ def corr_heatmap(DataFrame, title="pic", figsize=None):
     DataFrame = change_col_dtype(DataFrame, bool, int)
     numeric_columns = DataFrame.select_dtypes(include=["number"])
     corr = numeric_columns.corr()
-    heatmap(corr, annot=True)
     if figsize is not None:
         plt.figure(figsize=figsize)
+    heatmap(corr, annot=True)
     plt.title(title)
+    if save_path is not None:
+        plt.savefig(save_path)
     plt.show()
     return corr
 
