@@ -1,8 +1,5 @@
 # modeltoolbox
 本库的主模块使用import mtb导入  
-啊啊啊啊啊我吐了，写了一晚上评价混淆矩阵的函数，写完以后才发现sklearn有这个函数...我不管了我就要用我的，我写的功能也比他多...啊啊啊啊  
-最近发现这玩意导包的速度实在是太慢了，居然有四秒，正好跟matlab无关的函数写的越来越多了，把代
-码重写一遍，顺便改个名字。  
 省去无关文件后主程序目录树结构如下：  
 
 ```txt
@@ -698,6 +695,6 @@ DGM_21, grey_model_21跟Markov_predict这仨个玩意写的太屎了，回头心
 
 
 ## 依赖
-暂时先写在这里（含内建库）：  
+暂时先写在这里：  
 numpy、pandas、matplotlib、seaborn、plotly、preetytable、sklearn、tensorflow、matlabengine、os、threading、multiprocessing、contextlib、typing、time、（pytorch）
 非ubuntu系统需修改tools模块中的prefersettings()
